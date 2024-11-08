@@ -1,15 +1,14 @@
 <!--
-
+源码感谢：
 link : http://www.wujiayi.vip
 name : 吴佳轶 | WuJiaYi
 mail : hello@wujiayi.vip
 微信公众号： 吴佳轶同学 
-
 -->
 
 <html>
 	<head>
-                <meta charset="UTF-8">
+		<meta charset="UTF-8">
 
 		<!--引入jQuery框架-->
 		<script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
@@ -42,7 +41,7 @@ mail : hello@wujiayi.vip
 
 			backgroundColor: 'transparent',
 			zoomMin: 0.9, // 鼠标缩放时的最小比例
-			zoomMax: 2.4, // 鼠标缩放时的最大比例
+			zoomMax: 4, // 鼠标缩放时的最大比例
 			focusOn: {
 				x: 0.55,
 				y: 2,
@@ -50,14 +49,14 @@ mail : hello@wujiayi.vip
 			},
 			regionStyle: {
 				initial: {
-					fill: '#e5e5e5',   // 地图颜色
+					fill: '#E1FFFF',   // 地图颜色
 					"fill-opacity": 1, // 省份（州）是否隐藏，鼠标滑动时显示; 1：显示，2：隐藏。
 					stroke: 'none',
 					"stroke-width": 0,
 					"stroke-opacity": 1
 				},
 				hover: {
-					fill: '#ccc',  // 鼠标滑动至某省份的高亮颜色。
+					fill: '#87CEEB',  // 鼠标滑动至某省份的高亮颜色。
 					"fill-opacity": 0.8
 				},
 				selected: {
@@ -67,7 +66,7 @@ mail : hello@wujiayi.vip
 			},
 			markerStyle: {
 		        initial: {
-		            fill: '#fd8888', // 足迹位置的填充颜色
+		            fill: '#ff7f00', // 足迹位置的填充颜色
 		            stroke: '#fff'   // 足迹位置的描边颜色
 		        },
 				hover: {
@@ -79,12 +78,33 @@ mail : hello@wujiayi.vip
 			markers: [ // 足迹位置
 
 				// {latLng: [经度（保留两位小数）, 纬度（保留两位小数）], name: '城市名称'},
-				// 推荐查询经纬度网站：http://www.gpsspg.com/maps.htm
 
 		        {latLng: [39.90, 116.41], name: '北京'},
 		        {latLng: [31.24, 121.50], name: '上海'},
+		        {latLng: [23.13, 113.26], name: '广州'},
 
-		        {latLng: [46.06, 122.06], name: '内蒙古 - 乌兰浩特'}
+				{latLng: [30.51, 114.41], name: '武汉光谷' },
+				{latLng: [30.55, 114.29], name: '武汉长江大桥' },
+				{latLng: [30.56, 114.40], name: '武汉东湖' },
+
+		        {latLng: [29.56, 106.55], name: '重庆人民大礼堂'},
+		        {latLng: [29.56, 106.59], name: '来福士(重庆)'},
+		        {latLng: [29.55, 106.54], name: '李子坝'},
+
+		        {latLng: [26.07, 119.30], name: '福州'},
+		        {latLng: [24.48, 118.09], name: '厦门'},
+
+		        {latLng: [22.53, 113.97], name: '深圳世界之窗'},
+		        {latLng: [22.28, 114.17], name: 'HK'},
+		        {latLng: [23.68, 113.06], name: '清远'},
+
+		        {latLng: [22.82, 108.37], name: '南宁'},
+		        {latLng: [28.23, 112.94], name: '长沙'},
+		        {latLng: [29.86, 121.62], name: '宁波'},
+		        {latLng: [37.86, 113.58], name: '阳泉'},
+		        {latLng: [30.25, 120.21], name: '杭州'},
+		        {latLng: [27.66, 117.96], name: '武夷山'},
+				
 		    ]
 		});
 	</script>
