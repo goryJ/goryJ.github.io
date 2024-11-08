@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Gory&#39;s Blog</title>
+  
+  <subtitle>一个硬核有趣的博客站</subtitle>
+  <link href="http://blog.goryj.com/atom.xml" rel="self"/>
+  
+  <link href="http://blog.goryj.com/"/>
+  <updated>2024-11-08T15:26:33.368Z</updated>
+  <id>http://blog.goryj.com/</id>
+  
+  <author>
+    <name>江榕煜</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Hello World</title>
+    <link href="http://blog.goryj.com/2024/11/08/hello-world/"/>
+    <id>http://blog.goryj.com/2024/11/08/hello-world/</id>
+    <published>2024-11-08T15:26:33.368Z</published>
+    <updated>2024-11-08T15:26:33.368Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.io/docs/&quot;&gt;documentation&lt;/a&gt;</summary>
+        
+      
+    
+    
+    
+    
+  </entry>
+  
+</feed>
