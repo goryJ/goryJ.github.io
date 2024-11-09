@@ -16,7 +16,7 @@
       <title> Gory&#39;s Blog</title>
   <meta name="generator" content="hexo-theme-ayer">
       
-      <link rel="shortcut icon" href="/favicon.ico" />
+      <link rel="shortcut icon" href="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/logo/ficus_48x48.ico" />
        
 <link rel="stylesheet" href="/dist/main.css">
 
@@ -53,6 +53,9 @@
   <div id="app">
     
       
+      <canvas width="1777" height="841"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999; pointer-events: none;"></canvas>
+      
     <main class="content on">
       
 <section class="cover">
@@ -64,7 +67,7 @@
     
   <div class="cover-frame">
     <div class="bg-box">
-      <img src="/images/cover4.jpg" alt="image frame" />
+      <img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/logo/cover4.jpg" alt="image frame" />
     </div>
     <div class="cover-inner text-center text-white">
       <h1><a href="/">Gory&#39;s Blog</a></h1>
@@ -93,9 +96,9 @@
   <script>
     try {
       var typed = new Typed("#subtitle", {
-        strings: ['面朝大海，春暖花开', '愿你一生努力，一生被爱', '想要的都拥有，得不到的都释怀'],
+        strings: ['夫英雄者，胸怀大志，腹有良谋', '有包藏宇宙之机，吞吐天地之志也', '趁年少，作英雄'],
         startDelay: 0,
-        typeSpeed: 200,
+        typeSpeed: 150,
         loop: true,
         backSpeed: 100,
         showCursor: true
@@ -122,7 +125,7 @@
   
 <div class="notice" style="margin-top:50px">
     <i class="ri-heart-fill"></i>
-    <div class="notice-content">Gory的新博客主站，陆续迁移中。</div>
+    <div class="notice-content">Gory的新博客主站，旧站（singularity-blog.top）不再维护。</div>
 </div>
 
 
@@ -159,7 +162,7 @@
     
     
     <article
-  id="post-hello-world"
+  id="post-FIR4Interpolator"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -170,8 +173,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2024/11/08/hello-world/"
-    >Hello World</a> 
+  <a class="article-title" href="/2024/08/20/FIR4Interpolator/"
+    >基于FIR的高效插值器</a> 
 </h2>
  
 
@@ -179,14 +182,55 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2024/11/08/hello-world/" class="article-date">
-  <time datetime="2024-11-08T15:26:33.368Z" itemprop="datePublished">2024-11-08</time>
+      <a href="/2024/08/20/FIR4Interpolator/" class="article-date">
+  <time datetime="2024-08-20T03:51:52.000Z" itemprop="datePublished">2024-08-20</time>
 </a>    
     </div>
       
     <div class="article-entry" itemprop="articleBody">
        
-  <p>小刘肯定是第一个看到的！</p>
+  <blockquote>
+<p>在超声相控接收系统中，需要对采样的超声信号做超分辨率处理。考虑超声回波信号具有明显的窄带特性，就可以使用DSP课堂中的插0滤波法，选FIR的原因是可具有线性相移并且更加稳定。</p>
+</blockquote>
+<h2 id="FIR实现内插的数学原理"><a href="#FIR实现内插的数学原理" class="headerlink" title="FIR实现内插的数学原理"></a>FIR实现内插的数学原理</h2><p>N阶FIR滤波器的时域输入输出关系为：</p>
+<p>$$<br>y[n] &#x3D; \sum^{N-1}_{k&#x3D;0} h[k]x[n-k]<br>$$</p>
+<p>式中$y$是输出，$x$是输入，$h$是滤波器的系数。本文中不对FIR的DSP知识进行回顾，直接使用Matlab工具设计滤波器。但是有必要分析一下，为什么可以使用补0+FIR方案实现超分辨率，以及FIR滤波器的参数如何确定。</p>
+<p>首先，我们对原信号$x[n]$做有限长离散傅里叶变换，得到频谱$X$：</p>
+<p>$$<br>X[k] &#x3D; DFT(x[n])&#x3D;\sum_{n&#x3D;0}^{N-1} x[n]\cdot W_N^{kn}, 0\le k \le N-1<br>$$</p>
+<p>同时逆变换有：</p>
+<p>$$<br>x[n] &#x3D; IDFT(X[k]) &#x3D; \frac 1N \sum^{N-1}_{k&#x3D;0} X[k]W_N^{-kn},  0\le n\le N-1<br>$$</p>
+<p>式中，$W_N&#x3D;e^{-j2\pi &#x2F;N}$是离散的旋转因子。如果在$x[i-1]$和$x[i]$之间插入$L-1$个0，那么插值后原本长度为$N$的序列$x[n]$变为了长度$(N-1)L+1$的序列$x_{ip}[n]$，注意$x_{ip}[jL]&#x3D;x[j]$，做DFT有：</p>
+<p>$$<br>X_{ip}[k]&#x3D;DFT(x_{ip}[n]) &#x3D; \sum_{n&#x3D;0}^{(N-1)L} x_{ip}[n]\cdot W_{NL}^{kn}, 0\le k \le (N-1)L<br>$$</p>
+<p>因为除了$n&#x3D;jL, 0\le j \le N-1$之外其他都是0，因此有：</p>
+<p>$$<br>X_{ip}[k] &#x3D; \sum^{N-1}<em>{j&#x3D;0}x</em>{ip}[jL]\cdot W_{NL}^{kjL}, 0\le k \le (N-1)L<br>\\<br>&#x3D;\sum^{N-1}_{j&#x3D;0} x[j]\cdot W_N^{kj}，0\le k \le (N-1)L<br>\\<br>&#x3D;\begin{cases}<br>    X[k], &amp; 0 \le k \le N-1 \<br>    X[k-N], &amp; N \le k \le 2N-1 \<br>    \vdots<br>\end{cases}<br>$$</p>
+<p>因此我们可以发现原频谱$X$和内插0后频谱$X_{ip}$发生了对应内插倍数的频谱复制。从信号与系统的角度，只要我们的频谱没有发生混叠，那就一定可以恢复出原信号，这里可以看出频谱复制后是绝对不可能发生频谱重叠，但是如果原本信号的频谱两端并不为0，那么因为滤波器的不理想性也会导致还原信号错误。</p>
+<p>为了演示，笔者使用高斯幅度调制正弦信号的超声脉冲回波信号作为原信号$x[n]$，进行插0、FIR操作，并在每一步做FFT，如下图读者就可以很简单地理解到具体原理。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/202406/202408_FIR_1.jpg" alt="FIR内插原理"></p>
+<p>对应的matlab分析代码：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">figure</span>()</span><br><span class="line"></span><br><span class="line"><span class="comment">%% 生成脉冲数据</span></span><br><span class="line">F0 = <span class="number">2e6</span>;  <span class="comment">% 谐振频率</span></span><br><span class="line">bw_ratio = <span class="number">0.9</span>; <span class="comment">% 带宽分数</span></span><br><span class="line"></span><br><span class="line">Fs = <span class="number">10e6</span>; <span class="comment">% 采样频率</span></span><br><span class="line">T = <span class="number">6</span>*(<span class="number">1</span>/F0);  <span class="comment">% 信号采样时间范围，6个周期</span></span><br><span class="line"></span><br><span class="line"><span class="comment">% 创建时间向量</span></span><br><span class="line">t = -T:<span class="number">1</span>/Fs:T;</span><br><span class="line">t_length = <span class="built_in">size</span>(t);</span><br><span class="line">t_length = t_length(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">% 产生高斯脉冲</span></span><br><span class="line">[yi, ~, ye] = gauspuls(t, F0, bw_ratio);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">% FFT分析</span></span><br><span class="line">[y_power,y_freq] = myEventFFT(yi,Fs/<span class="number">1e6</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">% 绘制高斯脉冲</span></span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">3</span>,<span class="number">1</span>)</span><br><span class="line"><span class="built_in">plot</span>(t+T, yi, t+T, ye);</span><br><span class="line">title(<span class="string">&#x27;Gaussian Modulated Ultrasonic Signal&#x27;</span>);</span><br><span class="line">xlabel(<span class="string">&#x27;Time (s)&#x27;</span>);</span><br><span class="line">ylabel(<span class="string">&#x27;x[n] Amplitude&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">% 绘制频谱</span></span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>)</span><br><span class="line"><span class="built_in">plot</span>(y_freq, y_power, <span class="string">&quot;LineWidth&quot;</span>,<span class="number">2</span>);</span><br><span class="line">title(<span class="string">&#x27;FFT(x[n])&#x27;</span>);</span><br><span class="line">xlabel(<span class="string">&quot;f /MHz&quot;</span>);</span><br><span class="line">ylabel(<span class="string">&quot;|P(f)|&quot;</span> );</span><br><span class="line"></span><br><span class="line"><span class="comment">%% 插0</span></span><br><span class="line"></span><br><span class="line">inter_mult = <span class="number">10</span>; <span class="comment">% 数据插值倍率</span></span><br><span class="line"></span><br><span class="line">y_after_inter = <span class="built_in">zeros</span>(<span class="number">1</span>,inter_mult*t_length);</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> id = <span class="number">1</span>: t_length</span><br><span class="line">    y_after_inter(id*inter_mult) = yi(id);</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">t_after_inter = (<span class="number">1</span>:<span class="built_in">length</span>(y_after_inter))/<span class="built_in">length</span>(y_after_inter)*<span class="number">2</span>*T;</span><br><span class="line"></span><br><span class="line"><span class="comment">% FFT分析</span></span><br><span class="line">[y_inter_power,y_inter_freq] = myEventFFT(y_after_inter,Fs/<span class="number">1e6</span>*inter_mult);</span><br><span class="line"></span><br><span class="line"><span class="comment">% 绘制插值后的图像和频谱</span></span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">3</span>,<span class="number">2</span>)</span><br><span class="line"><span class="built_in">plot</span>(t_after_inter,y_after_inter)</span><br><span class="line">title(<span class="string">&#x27;after interpolate&#x27;</span>);</span><br><span class="line">xlabel(<span class="string">&#x27;Time (s)&#x27;</span>);</span><br><span class="line">ylabel(<span class="string">&#x27;x_&#123;ip&#125;[n] Amplitude&#x27;</span>);</span><br><span class="line"></span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">3</span>,<span class="number">5</span>)</span><br><span class="line"><span class="built_in">plot</span>(y_inter_freq, y_inter_power, <span class="string">&quot;LineWidth&quot;</span>,<span class="number">2</span>);</span><br><span class="line">title(<span class="string">&#x27;FFT(x_&#123;ip&#125;[n])&#x27;</span>);</span><br><span class="line">xlabel(<span class="string">&quot;f /MHz&quot;</span>);</span><br><span class="line">ylabel(<span class="string">&quot;|P(f)|&quot;</span> );</span><br><span class="line"></span><br><span class="line"><span class="comment">%% FIR带通滤波</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">% 设置滤波器的频率点</span></span><br><span class="line"><span class="comment">% 归一化： 实际频率/(采样率/2)</span></span><br><span class="line">f_fir_lp = [<span class="number">0</span> (F0*bw_ratio)/(Fs*inter_mult/<span class="number">2</span>) (F0*bw_ratio)/(Fs*inter_mult/<span class="number">2</span>) ...</span><br><span class="line">            (F0*(<span class="number">2</span>-bw_ratio))/(Fs*inter_mult/<span class="number">2</span>) (F0*(<span class="number">2</span>-bw_ratio))/(Fs*inter_mult/<span class="number">2</span>) <span class="number">1</span>];</span><br><span class="line">m_fir_lp = [<span class="number">0</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">0</span> <span class="number">0</span>];</span><br><span class="line"></span><br><span class="line">b_fir_lp = fir2(<span class="number">80</span>,f_fir_lp,m_fir_lp);</span><br><span class="line"></span><br><span class="line"><span class="comment">% 换带通方案更好</span></span><br><span class="line">f_fir_bp = [(F0*bw_ratio)/(Fs*inter_mult/<span class="number">2</span>) (F0*(<span class="number">2</span>-bw_ratio))/(Fs*inter_mult/<span class="number">2</span>)];</span><br><span class="line">b_fir_bp = fir1(<span class="number">80</span>,f_fir_bp);</span><br><span class="line"></span><br><span class="line"><span class="comment">%显示滤波器特性</span></span><br><span class="line"><span class="comment">% freqz(b_fir_bp,1)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">% 滤波</span></span><br><span class="line">y_after_filter = filter(b_fir_bp,<span class="number">1</span>,y_after_inter);</span><br><span class="line"></span><br><span class="line"><span class="comment">% FFT分析</span></span><br><span class="line">[y_fil_power,y_fil_freq] = myEventFFT(y_after_filter,Fs/<span class="number">1e6</span>*inter_mult);</span><br><span class="line"></span><br><span class="line"><span class="comment">% 绘制滤波后的图像和频谱</span></span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">3</span>,<span class="number">3</span>)</span><br><span class="line"><span class="built_in">plot</span>(t_after_inter,y_after_filter)</span><br><span class="line">title(<span class="string">&#x27;after filter&#x27;</span>);</span><br><span class="line">xlabel(<span class="string">&#x27;Time (s)&#x27;</span>);</span><br><span class="line">ylabel(<span class="string">&#x27;x_&#123;f&#125;[n] Amplitude&#x27;</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">3</span>,<span class="number">6</span>)</span><br><span class="line"><span class="built_in">plot</span>(y_fil_freq, y_fil_power, <span class="string">&quot;LineWidth&quot;</span>,<span class="number">2</span>);</span><br><span class="line">title(<span class="string">&#x27;FFT(x_&#123;f&#125;[n])&#x27;</span>);</span><br><span class="line">xlabel(<span class="string">&quot;f /MHz&quot;</span>);</span><br><span class="line">ylabel(<span class="string">&quot;|P(f)|&quot;</span> );</span><br><span class="line"></span><br><span class="line"><span class="comment">%% 定义辅助函数</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="params">[vec_power,vec_freq]</span> = <span class="title">myEventFFT</span><span class="params">(vec_smpData, F_s)</span></span></span><br><span class="line"><span class="comment">%求采样数据的FFT变换，绘图，返回格式 [单边功率, 频率]</span></span><br><span class="line"><span class="comment">%   采样率共用导入数据时候的全局参数 F_s</span></span><br><span class="line"><span class="comment">% </span></span><br><span class="line"><span class="comment">% global F_s;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">% 数据长度</span></span><br><span class="line">L_smpData = <span class="built_in">length</span>(vec_smpData);</span><br><span class="line"></span><br><span class="line"><span class="comment">% 求频谱</span></span><br><span class="line">vec_freq = F_s/L_smpData*(<span class="number">0</span>:(L_smpData/<span class="number">2</span>));  <span class="comment">% 频率轴</span></span><br><span class="line"></span><br><span class="line">P2 = <span class="built_in">abs</span>( fft(vec_smpData) / L_smpData);  <span class="comment">%FFT</span></span><br><span class="line">P1 = P2(<span class="number">1</span> : L_smpData/<span class="number">2</span>+<span class="number">1</span>); <span class="comment">% 取单边</span></span><br><span class="line">P1(<span class="number">2</span>:<span class="keyword">end</span><span class="number">-1</span>) = <span class="number">2</span>*P1(<span class="number">2</span>:<span class="keyword">end</span><span class="number">-1</span>);</span><br><span class="line"></span><br><span class="line">vec_power = P1;</span><br><span class="line"></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="内插器RTL框图"><a href="#内插器RTL框图" class="headerlink" title="内插器RTL框图"></a>内插器RTL框图</h2><p>用于内插的FIR滤波器都可以做运算优化，因为插0后有很多运算都是0乘操作。比如上例中设计了<code>N=80</code>阶滤波器，数据倍率为<code>L=10</code>，若此时推入滤波器的$x_{ip}[n]$为有效采样数据，则：</p>
+<p>$$<br>y[n]  &#x3D; \sum^{79}<em>{k&#x3D;0} h[k]x</em>{ip}[n-k] \\<br>&#x3D; \sum^{0,10,20,\cdots,70}<em>{k} h[k]x</em>{ip}[n-k] \\<br>&#x3D;\sum^{7}<em>{i&#x3D;0} h[i\cdot 10]x</em>{ip}[n-i \cdot 10]<br>$$</p>
+<p>也就是可以优化为只有<code>N/L=8</code>次乘法操作。类似的，考虑前一时钟推入的为有效采样数据，此时时钟推入的为插值的0，那么：</p>
+<p>$$<br>y[n]&#x3D; \sum^{7}<em>{i&#x3D;0} h[i\cdot 10-1]x</em>{ip}[n-i \cdot 10-1]<br>$$</p>
+<p>还是只进行<code>8</code>次乘法操作，并且会发现在<code>L=10</code>次运算中，有效的$x_{ip}$是同一组数据。因此，作如下图设计，首先每隔<code>L</code>次时钟，滑动更新<code>smpData</code>寄存器数据；而系数全部存在RAM中，总共有<code>N/L=8</code>个RAM读端口，RAM地址由一个计数器提供，从而实现滑动系数；计数器给每个RAM的地址依次相差<code>L</code>。</p>
+<p>根据上述优化分析，可以设计如下插值器的框图。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/202406/202408_FIR_2.jpg" alt="插值器框图"></p>
+<h2 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h2><h3 id="使用DSP48E2原语"><a href="#使用DSP48E2原语" class="headerlink" title="使用DSP48E2原语"></a>使用DSP48E2原语</h3><p>Ultrascale系列的DSP单元，如下图支持加法、乘法、逻辑判断。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/202406/202408_FIR_3.png" alt="DSP简图"></p>
+<p>直接基于DSP48E2原语进行设计，能够获得很多硬件层面的加速优势和功耗优势，比如：</p>
+<ul>
+<li>实现更低能耗和高性能的流水线设计</li>
+<li>使用BRAM或者UltraRAM来存储滤波器参数，从而优化CLB的使用</li>
+<li>如果不用乘法可以<code>USE_MUL=NONE</code>来减小功耗</li>
+<li>当多个DSP间有数据传递的关系，可以使用专用的级联（Cascade）资源从而减小对通用布线资源的占用。专用资源也能够获得更好的运算性能和更低的功耗</li>
+<li>可以使用时间复用的方法，在低速应用时</li>
+</ul>
+<p><img src="http://imgjry.fangyikuan.xyz/202406/202408_FIR_4.png" alt="DSP48E2"></p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li>PG323 DSP Macro LogiCORE IP Product Guide</li>
+<li><strong>UG579</strong> UltraScale Architecture DSP Slice User Guide</li>
+</ul>
  
       <!-- reward -->
       
@@ -205,9 +249,187 @@
 </article>
 
     
+    <article
+  id="post-lvdsRecv"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2024/06/13/lvdsRecv/"
+    >LVDS接收数据流（这一篇就够了）</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2024/06/13/lvdsRecv/" class="article-date">
+  <time datetime="2024-06-13T05:55:06.000Z" itemprop="datePublished">2024-06-13</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/">嵌入式驱动</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>本文将以驱动AFE5832高速模拟前端为开发目标，依次分析设计需求、方案原理、在Zynq Ultrascale+上的Verilog实现，最后扩展分享更通用、更有鲁棒性的LVDS Receiver。注：本文针对具有Verilog语言基础和FPGA基础概念的用户。</p>
+</blockquote>
+<h2 id="接口设计需求简析"><a href="#接口设计需求简析" class="headerlink" title="接口设计需求简析"></a>接口设计需求简析</h2><p><a target="_blank" rel="noopener" href="https://www.ti.com.cn/product/cn/AFE5832">AFE5832</a>是TI公司的一款适用于超声应用的模拟前端芯片，内含从LNA、LPF、到ADC的完整信号链和其他超声需要的辅助模块。采样方面，总共有32路输入，16个ADC，每个ADC支持12bit@40MSPS或者10bit@50MSPS采样，每个ADC的结果分别用一个LVDS的Lane串行输出。配置方面使用SPI接口，可以直接用AXI-SPI的IP核控制，不作介绍，所以接下来的篇幅将开始集中在LVDS方面。</p>
+<blockquote>
+<p>NOTE：笔者使用ZYNQ的PS的SPI，发现有BUG，只能EMIO出信号，MIO一样的代码不行</p>
+</blockquote>
+<p><img src="http://imgjry.fangyikuan.xyz/202406/202406_LVDS_1.png" alt="AFE5832"></p>
+<p>AFE5832的LVDS数据输出接口如下图，有16对Data Lane（<strong>DOUT</strong>），和1对串行数据时钟Serial Data CLK Lane（<strong>DCLK</strong>），以及1对用来划分数据帧的Frame CLK Lane（<strong>FCLK</strong>）。</p> 
+      <a class="article-more-link" href="/2024/06/13/lvdsRecv/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FPGA/" rel="tag">FPGA</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/LVDS/" rel="tag">LVDS</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-mechanicofmaterial"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2023/09/01/mechanicofmaterial/"
+    >速通材料力学</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2023/09/01/mechanicofmaterial/" class="article-date">
+  <time datetime="2023-09-01T15:26:33.000Z" itemprop="datePublished">2023-09-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%99%A8%E4%BB%B6%E5%88%B6%E9%80%A0/">器件制造</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="基本概念和术语"><a href="#基本概念和术语" class="headerlink" title="基本概念和术语"></a>基本概念和术语</h2><ul>
+<li><p>构件&#x2F;零件：组成机械与结构的各组成部分</p>
+</li>
+<li><p>保证构件正常或安全工作的条件：</p>
+<ul>
+<li>强度（在外力作用下抵抗塑性变形和断裂的能力），对应应力，单位Pa<br>对应的实验测试方法<ul>
+<li>拉伸实验——拉伸强度、屈服强度、抗拉强度（tensile strength）</li>
+<li>三点弯曲实验——抗弯强度（Shear strength）</li>
+<li>压缩实验——抗压强度（compression strength）</li>
+</ul>
+</li>
+<li>刚度（Stiffness）（受力时抵抗弹性变形的能力），对应应变</li>
+<li>硬度（金属材料抵抗更硬的物体压入其内的能力），属于表面特征。硬度定义方式包括：<ul>
+<li>刻划硬度（Scratch hardness）</li>
+<li>压入硬度（Indentation hardness）</li>
+<li>回弹硬度（Rebound hardness，动态硬度dynamic hardness，或绝对硬度）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>连续性假设：材料无空隙地充满整个构件</p>
+</li>
+<li><p>均匀性假设：构件内每一处的力学性能都相同</p>
+</li>
+<li><p>各向同性假设：构件某一处材料沿各个方向的力学性能相同。</p>
+</li>
+<li><p>各向异性假设：各个方向的力学性能不同。</p>
+</li>
+<li><p>内力：构件内部各<strong>部分之间</strong>因受力后变形而引起的相互作用力</p>
+<ul>
+<li>应力的积分，可以算内力</li>
+<li>内力的分类：轴力，剪力，扭矩，弯矩</li>
+<li>单位：N</li>
+</ul>
+</li>
+<li><p>应力：单个点的力特征，单位是Pa</p>
+</li>
+<li><p>变形：构件尺寸与形状的变化称为变形。</p>
+<ul>
+<li>弹性变形：外力解除后能消失的变形</li>
+<li>塑性变形&#x2F;残余变形：外力解除后不能消失的变形<blockquote>
+<p>在材料力学里，所有材料都会变形</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p><strong>应变</strong>：变形的程度，无量纲</p>
+<ul>
+<li>线应变<br>$$<br>\epsilon &#x3D; \Delta L &#x2F; L<br>$$</li>
+<li>切应变</li>
+</ul>
+</li>
+<li><p>材料的应力-应变曲线<br><img src="http://imgjry.fangyikuan.xyz/20230902/20230902_MecOfMat_1.jpg" alt="低碳钢应变应力"></p>
+<p>如上图是低碳钢拉伸时的应力应变曲线。可以分为四个阶段：</p> 
+      <a class="article-more-link" href="/2023/09/01/mechanicofmaterial/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9D%90%E6%96%99/" rel="tag">材料</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
   </article>
   
 
+  
+  <nav class="page-nav">
+    
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/">下一页</a>
+  </nav>
   
 </section>
 </div>
@@ -217,7 +439,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2024
+        2024
         <i class="ri-heart-fill heart_icon"></i> 江榕煜
       </li>
     </ul>
@@ -270,7 +492,7 @@
 <nav class="navbar">
   
   <div class="logo">
-    <a href="/"><img src="/images/ayer-side.svg" alt="Gory&#39;s Blog"></a>
+    <a href="/"><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/logo/ficus_logo.jpg" alt="Gory&#39;s Blog"></a>
   </div>
   
   <ul class="nav nav-main">
@@ -333,17 +555,17 @@
 <!-- #reward -->
 <div id="reward">
   <span class="close"><i class="ri-close-line"></i></span>
-  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <p class="reward-p"><i class="ri-cup-line"></i>感谢股东支持！</p>
   <div class="reward-box">
     
     <div class="reward-item">
-      <img class="reward-img" src="/images/alipay.jpg">
+      <img class="reward-img" src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/logo/d23be1073bca56cb03df72bf5be1d0c.jpg">
       <span class="reward-type">支付宝</span>
     </div>
     
     
     <div class="reward-item">
-      <img class="reward-img" src="/images/wechat.jpg">
+      <img class="reward-img" src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/logo/666fc381aa93059dda537894ebf162d.jpg">
       <span class="reward-type">微信</span>
     </div>
     
@@ -473,6 +695,30 @@
     viewer_init()
 </script> 
 <!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
 
 <!-- Katex -->
 
@@ -481,13 +727,13 @@
 <script src="/js/busuanzi-2.3.pure.min.js"></script>
  
 <!-- ClickLove -->
- 
-<script src="/js/clickLove.js"></script>
- 
+
 <!-- ClickBoom1 -->
 
 <!-- ClickBoom2 -->
-
+ 
+<script src="/js/clickBoom2.js"></script>
+ 
 <!-- CodeCopy -->
  
 <link rel="stylesheet" href="/css/clipboard.css">
@@ -547,7 +793,9 @@
 </script>
  
 <!-- CanvasBackground -->
-
+ 
+<script src="/js/dz.js"></script>
+ 
 <script>
   if (window.mermaid) {
     mermaid.initialize({ theme: "forest" });

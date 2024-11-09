@@ -16,7 +16,7 @@
       <title>friends |  Gory&#39;s Blog</title>
   <meta name="generator" content="hexo-theme-ayer">
       
-      <link rel="shortcut icon" href="/favicon.ico" />
+      <link rel="shortcut icon" href="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/logo/ficus_48x48.ico" />
        
 <link rel="stylesheet" href="/dist/main.css">
 
@@ -53,6 +53,9 @@
   <div id="app">
     
       
+      <canvas width="1777" height="841"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999; pointer-events: none;"></canvas>
+      
     <main class="content on">
       <section class="outer">
     
@@ -60,17 +63,7 @@
     <ul id="friends_link">
         
         <li class="friends_li">
-            <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank" class="search-title"
-                >
-                
-                <img src="/images/ayer.png">
-                
-                Ayer主题
-            </a>
-        </li>
-        
-        <li class="friends_li">
-            <a href="https://github.com/Shen-Yu" target="_blank" class="search-title"
+            <a href="https://github.com/goryJ" target="_blank" class="search-title"
                 >
                 
                 <img src="/images/github.png">
@@ -80,12 +73,42 @@
         </li>
         
         <li class="friends_li">
-            <a href="https://gitee.com/shen-yu" target="_blank" class="search-title"
+            <a href="https://www.amd.com/zh-cn/products/adaptive-socs-and-fpgas/fpga.html" target="_blank" class="search-title"
                 >
                 
-                <img src="/images/gitee.png">
+                <img src="https://www.amd.com/content/dam/code/images/header/amd-header-logo.svg">
                 
-                码云
+                FPGA(AMD)
+            </a>
+        </li>
+        
+        <li class="friends_li">
+            <a href="https://opencores.org/projects" target="_blank" class="search-title"
+                >
+                
+                <img src="https://cdn.opencores.org/design/OpenCores.png">
+                
+                开源IP社区
+            </a>
+        </li>
+        
+        <li class="friends_li">
+            <a href="https://www.woshicver.com/" target="_blank" class="search-title"
+                >
+                
+                <img src="https://docs.opencv.org/4.x/opencv-logo-small.png">
+                
+                opencv中文文档
+            </a>
+        </li>
+        
+        <li class="friends_li">
+            <a href="https://docs.opencv.org/" target="_blank" class="search-title"
+                >
+                
+                <img src="https://docs.opencv.org/4.x/opencv-logo-small.png">
+                
+                opencv API
             </a>
         </li>
         
@@ -117,7 +140,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2015-2024
+        2024
         <i class="ri-heart-fill heart_icon"></i> 江榕煜
       </li>
     </ul>
@@ -170,7 +193,7 @@
 <nav class="navbar">
   
   <div class="logo">
-    <a href="/"><img src="/images/ayer-side.svg" alt="Gory&#39;s Blog"></a>
+    <a href="/"><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/logo/ficus_logo.jpg" alt="Gory&#39;s Blog"></a>
   </div>
   
   <ul class="nav nav-main">
@@ -233,17 +256,17 @@
 <!-- #reward -->
 <div id="reward">
   <span class="close"><i class="ri-close-line"></i></span>
-  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <p class="reward-p"><i class="ri-cup-line"></i>感谢股东支持！</p>
   <div class="reward-box">
     
     <div class="reward-item">
-      <img class="reward-img" src="/images/alipay.jpg">
+      <img class="reward-img" src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/logo/d23be1073bca56cb03df72bf5be1d0c.jpg">
       <span class="reward-type">支付宝</span>
     </div>
     
     
     <div class="reward-item">
-      <img class="reward-img" src="/images/wechat.jpg">
+      <img class="reward-img" src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/logo/666fc381aa93059dda537894ebf162d.jpg">
       <span class="reward-type">微信</span>
     </div>
     
@@ -373,6 +396,30 @@
     viewer_init()
 </script> 
 <!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
 
 <!-- Katex -->
 
@@ -381,13 +428,13 @@
 <script src="/js/busuanzi-2.3.pure.min.js"></script>
  
 <!-- ClickLove -->
- 
-<script src="/js/clickLove.js"></script>
- 
+
 <!-- ClickBoom1 -->
 
 <!-- ClickBoom2 -->
-
+ 
+<script src="/js/clickBoom2.js"></script>
+ 
 <!-- CodeCopy -->
  
 <link rel="stylesheet" href="/css/clipboard.css">
@@ -447,7 +494,9 @@
 </script>
  
 <!-- CanvasBackground -->
-
+ 
+<script src="/js/dz.js"></script>
+ 
 <script>
   if (window.mermaid) {
     mermaid.initialize({ theme: "forest" });

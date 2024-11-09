@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+
+
+<html lang="zh">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="从日常旅行到硬核软硬件技术分享" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>六轴传感器（ICM42688）驱动及姿态估计 |  Gory&#39;s Blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/logo/ficus_48x48.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    <link rel="alternate" href="/atom.xml" title="Gory's Blog" type="application/atom+xml">
+</head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+      <canvas width="1777" height="841"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999; pointer-events: none;"></canvas>
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-ICM42688P-DrvBySPI"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  六轴传感器（ICM42688）驱动及姿态估计
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/07/28/ICM42688P-DrvBySPI/" class="article-date">
+  <time datetime="2022-07-28T12:07:57.000Z" itemprop="datePublished">2022-07-28</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%BC%A0%E6%84%9F%E5%99%A8/">传感器</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">8.3k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">35 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>前言：打算给小巡洋舰搞点花活，顺便做个飞控，记录一下其中最为关键的惯性导航（IMU）。本次项目中使用的是TDK出的最新MEMS传感器以提高项目的生命周期，因此本文将先简单介绍ICM42688这个片子，接着探讨SPI驱动方法，最后记录六轴MEMS传感器的工作原理。</p>
+</blockquote>
+<h2 id="ICM42688简介"><a href="#ICM42688简介" class="headerlink" title="ICM42688简介"></a>ICM42688简介</h2><p><img src="http://imgjry.fangyikuan.xyz/20220728/20220728-ICM42688SPI-1.png" alt="ICM42688芯片"></p>
+<p>这款6轴MEMS运动跟踪传感器内有一个三轴陀螺仪和一个三轴加速度计，通信方面支持I3C接口、常规的IIC、SPI通信和2kB的FIFO，并且按照TDK的老传统这个片子里也是带数字处理单元的。这个片子目前算是消费电子里的顶流了，参数如下：</p>
+<ul>
+<li>陀螺仪噪声密度：$0.0028°&#x2F;s&#x2F;\sqrt{Hz}$</li>
+<li>加速度计噪声密度：$70\mu g&#x2F;\sqrt{Hz}$</li>
+<li>8档陀螺仪量程：$\pm15.6 \sim 2000dps$</li>
+<li>4档加速度计量程：2&#x2F;4&#x2F;8&#x2F;16g</li>
+<li>前端ADC精度：16bits</li>
+<li>SPI通信速率达24MHz</li>
+<li>最后，温漂参数也是非常不错：<ul>
+<li>陀螺仪SSF-Temp为$\pm 0.005 % &#x2F;° C$，ZRO-Temp为$\pm 0.005 °&#x2F;s&#x2F;° C$</li>
+<li>加速度计SSF-Temp为$\pm 0.005 % &#x2F;°C$，ZGO-Temp为$\pm 0.15 mg&#x2F;° C$</li>
+</ul>
+</li>
+</ul>
+<p>至于内置的APEX数字运动处理器也是非常优秀了，可以说是针对消费电子设计的，支持检测拿起、记录步数、倾斜测试等。这些功能在机器人应用上虽然犹如鸡肋，但是应该可以做一些花活。</p>
+<h2 id="SPI总线"><a href="#SPI总线" class="headerlink" title="SPI总线"></a>SPI总线</h2><span id="more"></span>
+
+<p>SPI总线在高速板载外设的通信中，极为常见。标准的4线SPI的信号线有：</p>
+<ul>
+<li>片选信号线<em>NSS</em>（或CS、CSB）：SPI标准允许一套总线上挂载多个设备，但是通信时只能有一个设备与主机通信，也就是片选被使能（拉低）的外设；</li>
+<li>同步时钟线<em>SCLK</em>（或SCK）：在下面将会看到，数据线上的信号将在时钟线的上下边沿被采集或放置，多个从机时该线共享；</li>
+<li>主机收从机发数据线<em>MISO</em>（或SDO）：全称Master Input Slave Output，作用很显然了，串行发至主机的数据线，多个从机时该线共享；</li>
+<li>主机发从机收数据线<em>MOSI</em>（或SDI）：全称Master Output Slave Input，类似的，串行发至从机的数据线，多个从机时该线共享；</li>
+</ul>
+<blockquote>
+<p>⚠️SPI总线属于有时钟的同步总线，因此在布线时应该严格按<em>等长线设计</em>；但一般无需做阻抗匹配</p>
+</blockquote>
+<p><img src="http://imgjry.fangyikuan.xyz/20220728/20220728-ICM42688SPI-2.png" alt="SPI总线"></p>
+<p>在STM32等MCU上，SPI外设的配置十分灵活，如上所示可以配置出最少4种类型的SPI通信方式，并由参数<em>CPOL</em>和<em>CPHA</em>配置：</p>
+<ul>
+<li>CPOL(Clock Polarity)表示时钟线<em>SCLK</em>在空闲状态时的信号电平。</li>
+<li>CPHA(Clock Phase)表示数据线<em>MOSI</em>和<em>MISO</em>在哪个时钟沿捕获数据。如上图所示，当该参数为<code>1Edge</code>时，设备在第一个时钟跳变沿采样数据；当该参数为<code>2Edge</code>时，设备在第二个时钟跳变沿采样数据。</li>
+</ul>
+<h3 id="ICM42688的SPI标准"><a href="#ICM42688的SPI标准" class="headerlink" title="ICM42688的SPI标准"></a>ICM42688的SPI标准</h3><p><img src="http://imgjry.fangyikuan.xyz/20220728/20220728-ICM42688SPI-3.png" alt="外设SPI时序"></p>
+<p>上图为截取自42688数据手册的SPI时序图，显然片选信号<em>CS</em>和时钟信号<em>SCLK</em>在空闲时都为高电平，数据线<em>SDI</em>和<em>SDO</em>在每个周期的第一个边沿放置数据及第二个边沿采样数据。因此CPOL&#x3D;High(<code>1</code>)，CPHA&#x3D;2Edge(<code>1</code>)。</p>
+<h2 id="底层驱动代码"><a href="#底层驱动代码" class="headerlink" title="底层驱动代码"></a>底层驱动代码</h2><p><img src="http://imgjry.fangyikuan.xyz/20220728/20220728-ICM42688SPI-4.png" alt="ICM42688原理图"></p>
+<p>本文接下来开发的驱动程序都是基于上原理图实现的硬件进行配置，为<code>FOSH</code>计划中的<code>GUAV</code>通用无人空中飞行器项目。采样标准4线SPI通信的方式，并使用1个中断线和一个外部32.768kHz的标准时钟（来自MCU的内部时钟共享，以提高数据同步性），另外添加PWM控制的加热恒温功能以防止低温环境带来的误差。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220728/20220728-ICM42688SPI-5.png" alt="驱动特性"></p>
+<p>在ICM42688P的数据手册上，我们看到该片的SPI使用时为：</p>
+<ul>
+<li>先发高位（MSB first）</li>
+<li>上升沿采样（与上面SPI小节中传输时序一致）</li>
+<li>读写时都是主机先发（MOSI）的第一个字节为地址信息，且该字节的最高位表示读写指令（读是1，写是0）</li>
+</ul>
+<p>根据这些信息来配置MCU，笔者使用的为STM32H750VBT6，使用官方工具CubeMX配置SPI参数具体如下：</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220728/20220728-ICM42688SPI-6.png" alt="STM32配置"></p>
+<p>在CubeMX生成的项目中，可以编写如下代码读写ICM42688P的寄存器，并测试连续读写功能：</p>
+<blockquote>
+<p>基于该测试代码和上面的原理图（等长布线），经实际上板测试，在225kHz~22.5MHz的时钟（波特率）范围内都可以稳定通信（SPI官方最高速率指标为24MHz）</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;bsp.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;string.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ICM42xxx_HSPI hspi2</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ICM42xxx_BUFFER_LEN 16</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ICM42xxx_SPI_NSS_HIGH()  HAL_GPIO_WritePin(SPI2_NSS4IMU_GPIO_Port, SPI2_NSS4IMU_Pin, GPIO_PIN_SET)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ICM42xxx_SPI_NSS_LOW()   HAL_GPIO_WritePin(SPI2_NSS4IMU_GPIO_Port, SPI2_NSS4IMU_Pin, GPIO_PIN_RESET)</span></span><br><span class="line"></span><br><span class="line"><span class="type">uint8_t</span> icm42xxx_spi_tx [ICM42xxx_BUFFER_LEN] =&#123;<span class="number">0xff</span>&#125;;</span><br><span class="line"><span class="type">uint8_t</span> icm42xxx_spi_rx [ICM42xxx_BUFFER_LEN] =&#123;<span class="number">0xff</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">uint8_t</span> testCache[<span class="number">4</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">/*****************************************************</span></span><br><span class="line"><span class="comment">以下为寄存器读写接口</span></span><br><span class="line"><span class="comment">*****************************************************/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  向指定寄存器写入数据</span></span><br><span class="line"><span class="comment">  * @note		这个芯片只能单次写，不支持突发写</span></span><br><span class="line"><span class="comment">  * @param  reg_addr:  写入寄存器地址</span></span><br><span class="line"><span class="comment">  *          value: 写入的数据</span></span><br><span class="line"><span class="comment">  * @retval 0正常；及其他错误代码</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">uint32_t</span> <span class="title function_">icm42xxx_spi_master_write_register</span><span class="params">(<span class="type">uint8_t</span> reg_addr, <span class="type">uint8_t</span> value)</span></span><br><span class="line">&#123;</span><br><span class="line">	ICM42xxx_SPI_NSS_LOW();	<span class="comment">// 软件使能</span></span><br><span class="line">	icm42xxx_spi_tx[<span class="number">0</span>] = reg_addr &amp; <span class="number">0x7F</span>;	<span class="comment">// 写入时，寄存器地址字节的第一位为 0；0x7f &lt;-&gt; 01111111</span></span><br><span class="line">	icm42xxx_spi_tx[<span class="number">1</span>] = value;	<span class="comment">// MOSI上第二个字节为写入的数据</span></span><br><span class="line">	</span><br><span class="line">	HAL_SPI_TransmitReceive(&amp;ICM42xxx_HSPI,</span><br><span class="line">	                       &amp;icm42xxx_spi_tx[<span class="number">0</span>],</span><br><span class="line">	                       &amp;icm42xxx_spi_rx[<span class="number">0</span>], <span class="number">2</span>,</span><br><span class="line">	                       <span class="number">0XFF</span>);</span><br><span class="line">	ICM42xxx_SPI_NSS_HIGH();</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  读取指定寄存器or一堆寄存器数据</span></span><br><span class="line"><span class="comment">  * @note   支持突发（连续）读</span></span><br><span class="line"><span class="comment">	* @param  reg_addr:  读取数据的起始地址</span></span><br><span class="line"><span class="comment">  *          pData:     返回的数据</span></span><br><span class="line"><span class="comment">  *          len:    读取的数字长度</span></span><br><span class="line"><span class="comment">  * @retval 0正常；及其他错误代码</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">uint32_t</span> <span class="title function_">icm42xxx_spi_master_read_register</span><span class="params">(<span class="type">uint8_t</span> reg_addr, <span class="type">uint8_t</span>* pData, <span class="type">uint8_t</span> len)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">if</span>(len&gt;ICM42xxx_BUFFER_LEN<span class="number">-1</span>)</span><br><span class="line">		<span class="keyword">return</span> <span class="number">1</span>;	<span class="comment">// 超出缓存空间！</span></span><br><span class="line">	</span><br><span class="line">	ICM42xxx_SPI_NSS_LOW();</span><br><span class="line">	icm42xxx_spi_tx[<span class="number">0</span>] = reg_addr | <span class="number">0x80</span>;	<span class="comment">// 读取时，寄存器地址字节的第一位为 1</span></span><br><span class="line">	<span class="built_in">memset</span>(icm42xxx_spi_tx+<span class="number">1</span>,<span class="number">0x00</span>,len);	<span class="comment">// 接收数据时，注意MOSI上不能再发地址，否则会破坏突发读的地址连续性</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span>( HAL_SPI_TransmitReceive(&amp;ICM42xxx_HSPI,</span><br><span class="line">	                             &amp;icm42xxx_spi_tx[<span class="number">0</span>],</span><br><span class="line">	                             &amp;icm42xxx_spi_rx[<span class="number">0</span>], len+<span class="number">1</span>,</span><br><span class="line">	                             <span class="number">0XFF</span>)</span><br><span class="line">		 != HAL_OK) <span class="comment">//因为先发地址后读数据，因此这里长度是len+1</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">2</span>;	<span class="comment">// SPI读取操作出错</span></span><br><span class="line">	&#125;</span><br><span class="line">	ICM42xxx_SPI_NSS_HIGH();</span><br><span class="line">	<span class="built_in">memcpy</span>(pData,icm42xxx_spi_rx+<span class="number">1</span>,len);</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  通信测试</span></span><br><span class="line"><span class="comment">  * @note   测试单次读取芯片ID，和连续读</span></span><br><span class="line"><span class="comment">  * @param  </span></span><br><span class="line"><span class="comment">  * @retval 0测试通过；及其他错误代码</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">uint32_t</span> <span class="title function_">icm42xxx_spi_master_communicate_test</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="meta">#<span class="keyword">define</span> ICM42XXX_REGADDR_WHO_AM_I (0x75)	<span class="comment">// 不同芯片读出来的ID值不一样，42688P是0x47</span></span></span><br><span class="line">	<span class="meta">#<span class="keyword">define</span> ICM42XXX_REGVAL_WHO_AM_I (0x47)</span></span><br><span class="line">	<span class="meta">#<span class="keyword">define</span> ICM42XXX_REGADDR_ACCEL_WOM_Y_THR (0x4B)</span></span><br><span class="line">	</span><br><span class="line">	</span><br><span class="line">	icm42xxx_spi_master_read_register(ICM42XXX_REGADDR_WHO_AM_I, testCache, <span class="number">1</span>);	<span class="comment">// 读取身份信息寄存器</span></span><br><span class="line">	</span><br><span class="line">	<span class="keyword">if</span>(testCache[<span class="number">0</span>] != ICM42XXX_REGVAL_WHO_AM_I)	<span class="comment">// 身份核验</span></span><br><span class="line">		<span class="keyword">return</span> <span class="number">1</span>;	<span class="comment">// 表示读取身份错误</span></span><br><span class="line">	</span><br><span class="line">	icm42xxx_spi_master_write_register(<span class="number">0x11</span>,<span class="number">0x01</span>);	<span class="comment">// 软件复位</span></span><br><span class="line">	HAL_Delay(<span class="number">2</span>);	<span class="comment">// 要等待最少1ms</span></span><br><span class="line">	icm42xxx_spi_master_read_register(ICM42XXX_REGADDR_ACCEL_WOM_Y_THR, testCache, <span class="number">2</span>);		<span class="comment">// 连读WOM_Y_TH、WOM_Z_TH</span></span><br><span class="line">	<span class="comment">/********************************</span></span><br><span class="line"><span class="comment">	BUG REPORT:</span></span><br><span class="line"><span class="comment">	调试过程中，发现不能连续操作3个字节</span></span><br><span class="line"><span class="comment">	目前还没找到原因！</span></span><br><span class="line"><span class="comment">	可能原因：</span></span><br><span class="line"><span class="comment">	1. 这几个寄存器之间不支持连读写</span></span><br><span class="line"><span class="comment">	   需要连续原厂才有答案</span></span><br><span class="line"><span class="comment">	2. 硬件时序偏移，使用高精度DLA可知</span></span><br><span class="line"><span class="comment">	********************************/</span></span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">2</span>;i++)</span><br><span class="line">	&#123;</span><br><span class="line">		testCache[i] += <span class="number">0x15</span>;	<span class="comment">// 随机变个数据</span></span><br><span class="line">		HAL_Delay(<span class="number">1</span>);</span><br><span class="line">		icm42xxx_spi_master_write_register((ICM42XXX_REGADDR_ACCEL_WOM_Y_THR + i), testCache[i]);	<span class="comment">// 写入数据</span></span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	HAL_Delay(<span class="number">1</span>);</span><br><span class="line">	icm42xxx_spi_master_read_register(ICM42XXX_REGADDR_ACCEL_WOM_Y_THR, testCache+<span class="number">2</span>, <span class="number">2</span>);	<span class="comment">// 再读一次</span></span><br><span class="line">	</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">2</span>;i++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span>(testCache[i] != testCache[i+<span class="number">2</span>])	<span class="comment">// 检验连续读写的正确性</span></span><br><span class="line">			<span class="keyword">return</span> <span class="number">2</span>;	<span class="comment">// 表示连续读写错误</span></span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;	<span class="comment">// 表示测试通过</span></span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="姿态解算算法"><a href="#姿态解算算法" class="headerlink" title="姿态解算算法"></a>姿态解算算法</h2><p>一般用直观的<strong>欧拉角</strong>来表示机体姿态，但是解算过程中，由于欧拉角的万向锁问题，人们使用<strong>四元数</strong>作为主要数学工具。</p>
+<h3 id="四元数"><a href="#四元数" class="headerlink" title="四元数"></a>四元数</h3><p>这是类似于复数的工具，但虚部是$\mathbb R^3$空间向量$\mathbf q_v&#x3D;[q_1,q_2,q_3]^T$，一般写为：</p>
+<p>$$<br>\mathbf q \triangleq \begin{bmatrix}<br> q_0 \\<br> \mathbf q_v<br>\end{bmatrix}<br>$$</p>
+<p>具有性质：</p>
+<ul>
+<li>加减法（显然满足交换律）<br>  $$<br>  \mathbf{p} \pm \mathbf{q} &#x3D;<br>  \begin{bmatrix}<br>  p_0 \\ \mathbf p_v<br>  \end{bmatrix} \pm<br>  \begin{bmatrix}<br>  q_0 \\ \mathbf q_v<br>  \end{bmatrix} &#x3D;<br>  \begin{bmatrix}<br>  p_0\pm q_0 \\ \mathbf p_v\pm \mathbf q_v<br>  \end{bmatrix}<br>  $$</li>
+<li>乘法（不能交换次序，但有分配律和结合律）<br>  $$<br>  \mathbf p\otimes \mathbf q &#x3D;<br>  \begin{bmatrix}<br>  p_0 \\ \mathbf p_v<br>  \end{bmatrix} \otimes<br>  \begin{bmatrix}<br>  q_0 \\ \mathbf q_v<br>  \end{bmatrix} &#x3D;<br>  \begin{bmatrix}<br>  p_0q_0-\mathbf q_v^T \mathbf p_v \\ \mathbf p_v\times \mathbf q_v + p_0 \mathbf q_v + q_0 \mathbf p_v<br>  \end{bmatrix}<br>  \\<br>  \mathbf q \otimes (\mathbf r+\mathbf m) &#x3D; \mathbf q\otimes \mathbf r + \mathbf q \otimes \mathbf m<br>  \\<br>  \mathbf q \otimes \mathbf r \otimes \mathbf m &#x3D; (\mathbf q \otimes \mathbf r) \otimes \mathbf m &#x3D;\mathbf q \otimes (\mathbf r \otimes \mathbf m )<br>  $$</li>
+<li>数乘<br>  $$<br>  s\mathbf q &#x3D; \mathbf q s &#x3D; \begin{bmatrix} sq_0 \\ s\mathbf q_v \end{bmatrix}<br>  $$</li>
+<li>共轭（和复数类似，都是虚部反）<br>  $$<br>  \mathbf q^* &#x3D; \begin{bmatrix} q_0 \\ -\mathbf q_v \end{bmatrix}<br>  \\<br>  (\mathbf q \otimes \mathbf p)^* &#x3D; \mathbf p^* \otimes \mathbf q^*<br>  $$</li>
+<li>范数<br>  $$<br>  \Vert \mathbf q \Vert  &#x3D; \sqrt{q_0^2 + \mathbf q_v^T\mathbf q_v} &#x3D; \sqrt{\Vert \mathbf q \otimes \mathbf q^*\Vert}<br>  $$</li>
+<li>逆<br>  $$<br>  \mathbf q \otimes \mathbf q^{-1} &#x3D; \begin{bmatrix}<br>  1 \\<br>  \mathbf 0_{3\times 1}<br>  \end{bmatrix} \\<br>  \mathbf q^{-1} &#x3D; \frac{\mathbf q^*}{\Vert \mathbf q \Vert}<br>  $$</li>
+</ul>
+<p>以上就是四元数的基本性质，接下来我们将这个工具往需要的姿态解算上带。首先，从四元数的范数计算，我们类似单位向量一般的，定义单位四元数$\Vert \mathbf q\Vert &#x3D; 1$，这是因为单位化之后的四元数们具有优秀的计算性质：</p>
+<p>$$<br>\forall . \Vert \mathbf q \Vert &#x3D;\Vert \mathbf p \Vert &#x3D;1<br>\\<br>\Rightarrow \Vert \mathbf q \otimes \mathbf p \Vert &#x3D; 1<br>\\<br>\mathbf q^{-1} &#x3D; \mathbf q^{*}<br>$$</p>
+<p>然后我们观察到四元数$\mathbf q$是由一个标量$q_0$和一个空间向量$\mathbf q_v$组成，如果把一个旋转过程记录为绕$\mathbf v$轴（右手螺旋系）旋转$\theta_0$角度，那么看起来恰好可以用四元数来表示🧐但是人们发现直接这样带进去的话，算起来还是不好用！然后就有人发现，可以把旋转过程和四元数对应为：</p>
+<p>$$<br>\mathbf q &#x3D; \begin{bmatrix}<br>\cos\frac \theta 2 \\<br>\mathbf v \sin\frac \theta 2<br>\end{bmatrix},<br>\Vert \mathbf v \Vert &#x3D;1<br>$$</p>
+<p>首先，这样映射的话就成了单位四元数啦，求逆很方便！然后将空间方向向量$\mathbf v_1$用一个四元数表示：<br>$$<br>\mathbf p &#x3D; \begin{bmatrix}<br>0 \\<br>\mathbf v_1<br>\end{bmatrix}<br>$$</p>
+<p>则该空间向量经过一个$\mathbf q$的旋转过程（绕$\mathbf v$转$\theta$角），经证明，可采用下式计算旋转后的空间姿态$\mathbf v_1’$：</p>
+<p>$$<br>\begin{bmatrix}<br>0 \\ \mathbf v_1’<br>\end{bmatrix} &#x3D; \mathbf q \otimes \mathbf p \otimes \mathbf q^{-1} &#x3D;<br>\begin{bmatrix}<br>\cos\frac \theta 2 \\<br>\mathbf v \sin\frac \theta 2<br>\end{bmatrix} \otimes<br>\begin{bmatrix}<br>0 \\<br>\mathbf v_1<br>\end{bmatrix} \otimes<br>\begin{bmatrix}<br>\cos\frac \theta 2 \\<br>-\mathbf v \sin\frac \theta 2<br>\end{bmatrix}<br>$$</p>
+<blockquote>
+<p>读者可以直接记下该<em><strong>重要公式</strong></em>，有余力可结合文末的推荐参考文献自行推导具体过程。</p>
+</blockquote>
+<h3 id="四元数旋转计算过程矩阵化"><a href="#四元数旋转计算过程矩阵化" class="headerlink" title="四元数旋转计算过程矩阵化"></a>四元数旋转计算过程矩阵化</h3><p>除了四元数外，这里也介绍一下它的好兄弟——旋转矩阵：</p>
+<p>$$<br>\mathbf v_e &#x3D; \mathbf R ^e_b \cdot \mathbf v_b<br>\\<br>\mathbf R^e_b \in SO(3),SO(3) &#x3D; { \mathbf R | \mathbf R^T \mathbf R &#x3D; \mathbf I_3, det(\mathbf R) &#x3D; 1,\mathbf R \in \mathbb R_{3\times 3} }<br>$$</p>
+<p>虽然用不上，但是这里为啥要介绍旋转矩阵呢，因为优秀的先人就是从这个旋转矩阵的变换中，观察到四元数空间旋转计算过程和旋转矩阵计算极为像！前提是我们要把四元数旋转计算过程进行矩阵化（毕竟不矩阵化，计算机也算不了这玩意），四元数乘法计算可以转为：</p>
+<p>$$<br>\mathbf p\otimes \mathbf q &#x3D; \mathbf p^+ \cdot \mathbf q &#x3D;  \mathbf q^-  \cdot \mathbf p<br>$$</p>
+<p>上式矩阵乘法中，将一个四元数直接作为$\mathbb R_{4}$向量，另一个四元数与四元数乘法符号一起转换为一个$\mathbb R_{4\times 4}$等效矩阵：</p>
+<p>$$<br>\mathbf p^{+} &#x3D; p_0 \mathbf I_4 +<br>\begin{bmatrix}<br>0 &amp; -\mathbf p_v^T<br>\\<br>\mathbf p_v &amp; [\mathbf p_v]_\times<br>\end{bmatrix}<br>$$<br>$$<br>\mathbf q^{-} &#x3D; q_0 \mathbf I_4 +<br>\begin{bmatrix}<br>0 &amp; -\mathbf q_v^T<br>\\<br>\mathbf q_v &amp; - [\mathbf q_v]_\times<br>\end{bmatrix}<br>$$</p>
+<p>其中，$[\mathbf p_v]_\times$是$\mathbf p_v$叉乘计算的矩阵点乘表示：</p>
+<p>$$<br>\mathbf p_v \times \mathbf a &#x3D; [\mathbf p_v]_\times \mathbf a,因此<br>[\mathbf p_v]_\times &#x3D;<br>\begin{bmatrix}<br>0 &amp; -p_3 &amp; p_2<br>\\<br>p_3 &amp; 0 &amp; -p_1<br>\\<br>-p_2 &amp; p_1 &amp; 0<br>\end{bmatrix}<br>$$</p>
+<p>因此四元数旋转计算过程可以矩阵化为：</p>
+<p>$$<br>\begin{bmatrix}<br>0 \\ \mathbf v_{1}’<br>\end{bmatrix} &#x3D; \mathbf q \otimes<br>\begin{bmatrix}<br>0 \\<br>\mathbf v_{1}<br>\end{bmatrix} \otimes \mathbf q^* &#x3D;<br>\mathbf q^{+} \cdot \mathbf q^{* -} \cdot<br>\begin{bmatrix}<br>0 \\<br>\mathbf v_{1}<br>\end{bmatrix}<br>$$<br>$$<br>\Rightarrow<br>\begin{bmatrix}<br>0 \\ \mathbf v_1’<br>\end{bmatrix} &#x3D;<br>\begin{bmatrix}<br>q_0 &amp; -\mathbf q_v^T<br>\\<br>\mathbf q_v &amp; q_0\mathbf I_3 + [\mathbf q_v]_\times<br>\end{bmatrix}<br>\begin{bmatrix}<br>q_0 &amp; +\mathbf q_v^T<br>\\<br>-\mathbf q_v &amp; q_0\mathbf I_3 + [\mathbf q_v]_\times<br>\end{bmatrix}<br>\begin{bmatrix}<br>0 \\<br>\mathbf v_1<br>\end{bmatrix}<br>$$</p>
+<p>在这个过程中，由于变换对象和结果对象四元数的实数部分都是0，所以如下我们可以把与0操作的部分直接去掉，则得到如下类似旋转矩阵的变换形式：</p>
+<p>$$<br>\mathbf v_1’ &#x3D;<br>\begin{bmatrix}<br>q_0^2+q_1^2-q_2^2-q_3^2 &amp; 2(q_1q_2-q_0q_3) &amp; 2(q_1q_3+q_0q_2)<br>\\<br>2(q_1q_2+q_0q_3) &amp; q_0^2-q_1^2+q_2^2-q_3^2 &amp;2(q_2q_3-q_0q_1)<br>\\<br>2(q_1q_3-q_0q_2) &amp; 2(q_2q_3+q_0q_1) &amp; q_0^2-q_1^2-q_2^2+q_3^2<br>\end{bmatrix} \cdot<br>\mathbf v_1<br>$$</p>
+<h3 id="六轴数据→四元数→姿态估计"><a href="#六轴数据→四元数→姿态估计" class="headerlink" title="六轴数据→四元数→姿态估计"></a>六轴数据→四元数→姿态估计</h3><p>姿态估计算法的<strong>最终目标</strong>通常就是<strong>欧拉角</strong>，因为欧拉角的物理概念很直观很好理解，方便设计多旋翼等类型的控制系统。而中间计算过程，上面通过对四元数的介绍，我们知道肯定是用这种优秀的工具。当机体停在平地上开机，接着开始运动，我们可以分别从3轴陀螺仪、3轴加速度计获得两套姿态：</p>
+<ol>
+<li><p>陀螺仪数据获得姿态</p>
+<p> 这里我们将传感器返回的3轴陀螺仪数据记为：<br> $$<br> \omega &#x3D;<br> \begin{bmatrix}<br> \omega_x \\<br> \omega_y \\<br> \omega_z<br> \end{bmatrix}<br> $$</p>
+<p> 显然，对角速度进行积分就可以直接得到姿态，但从长远来看，我们需要把积分过程用四元数来算才行。从四元数的性质推导得到四元数的微分方程：</p>
+<p> $$<br> \dot{\mathbf q}  &#x3D; \frac 12 \mathbf q \otimes<br> \begin{bmatrix}<br> 0 \\<br> \omega<br> \end{bmatrix}<br> $$</p>
+<p> 所以陀螺仪估计姿态，在MCU中的离散式计算方程为：</p>
+<p> $$<br> \mathbf q_t &#x3D; \mathbf q_{t-1}  + \frac 12 \mathbf q_{t-1} \otimes<br> \begin{bmatrix}<br> 0 \\<br> \omega<br> \end{bmatrix} \Delta t<br> $$</p>
+<p> 式中$\Delta t$为定采样&#x2F;计算迭代的周期时长。一个纯积分的系统，都必然是会发散的！这也是用陀螺仪测量的问题，如果一直迭代上式，就算是静止放着，角速度测量时的噪声、误差等都会不断累积，也就是大家常说的“漂移”。</p>
+</li>
+<li><p>加速度计数据获得姿态</p>
+<p> 类似的，我们把传感器得到的3轴加速度计数据记为：</p>
+<p> $$<br> \mathbf a &#x3D;<br> \begin{bmatrix}<br> a_x \\<br> a_y \\<br> a_z<br> \end{bmatrix}<br> $$</p>
+<p> 当我们把传感器<em>静止</em>放在一个<em>水平面</em>上时，显然受到重力的作用，测量的结果应该是当地的重力加速度$\mathbf g &#x3D; [0,0,g]^T$；而在其他姿态<em>静止</em>情况下，我们通过勾股定理可以得到：</p>
+<p> $$<br> a_x &#x3D; -g \sin \theta \\<br> a_y &#x3D; g \cos \theta \sin \phi \\<br> a_z &#x3D; g \cos \theta \cos \phi<br> $$</p>
+<p> 多么美妙方便呀，可以直接得到两个姿态角$\theta &#x3D; \arcsin(\frac {a_x}{-g})$和$\phi &#x3D; \arctan(\frac{a_y}{a_z})$。是的，非常遗憾，得不到偏航角！并且还有其他问题，比如载体运动时测量结果带有运动加速度、加速度噪声等。</p>
+</li>
+</ol>
+<p>通过上面直接用原始数据求解姿态，我们就得到了一句流传于世的经典名言：陀螺仪测量结果高频特性好，加速度计测量结果低频特性好。展开来说呢，就是陀螺仪因为积分漂移的问题，看总体的话测量结果会越来越差，但是局部测量的姿态（角速度）可靠性高；而加速度恰恰相反，没有漂移问题，但是局部测量结果估计的姿态存在较大干扰和噪声。所以，工程师们达成了一个共识，陀螺仪和加速计配合起来用就叫做一个完美！（当然，还有个缺陷就是偏航角测量问题，得加地磁计）那么就要设计一套多传感器数据融合估计姿态算法了，接下来开始介绍一套常用的6轴传感器估计姿态算法。</p>
+<blockquote>
+<p>这里接下来讨论的其实是<strong>Mahony算法</strong>！还有很多其他优秀的姿态估计算法，只是本文写不下而已！</p>
+</blockquote>
+<p><img src="http://imgjry.fangyikuan.xyz/20220728/20220728-ICM42688SPI-7.png" alt="Mahony算法框图"></p>
+<p>图中$_b \vec a$和$_b\vec \omega$分别表示传感器测量得到的加速度和角速度，由于传感器是安装在机体上的，所以这里使用前下角标“$_b$”进行注明，并考虑图片分辨率问题使用头戴箭头的方式替代本文中的粗体来表示矢量。</p>
+<p>这个算法融合的原理简单来说，就是用PI控制器去调整四元数离散微分方程中的角速度，补偿的依据（误差）是加速度计测量得到的向量与估计姿态下的重力方向做叉乘，这个误差的定义也就是这个算法的精髓。可以看出算法框图中是一个闭环结构，所以最后算法收敛的目标就是陀螺仪估计得到的姿态应该接近&#x2F;等于加速度计估计的姿态。</p>
+<h3 id="Mahony姿态估计实现代码"><a href="#Mahony姿态估计实现代码" class="headerlink" title="Mahony姿态估计实现代码"></a>Mahony姿态估计实现代码</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> sampleFreq	1000.0f			<span class="comment">// 采样率（ Hz ）</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> twoKpDef	(2.0f * 0.5f)	<span class="comment">// 2 * proportional gain</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> twoKiDef	(2.0f * 0.0f)	<span class="comment">// 2 * integral gain</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">volatile</span> <span class="type">float</span> twoKp = twoKpDef;											<span class="comment">// 2 * proportional gain (Kp)</span></span><br><span class="line"><span class="keyword">volatile</span> <span class="type">float</span> twoKi = twoKiDef;											<span class="comment">// 2 * integral gain (Ki)</span></span><br><span class="line"><span class="keyword">volatile</span> <span class="type">float</span> integralFBx = <span class="number">0.0f</span>,  integralFBy = <span class="number">0.0f</span>, integralFBz = <span class="number">0.0f</span>;	<span class="comment">// 积分误差</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/******************************************************************</span></span><br><span class="line"><span class="comment">**  算法实现</span></span><br><span class="line"><span class="comment">*******************************************************************/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  快速计算反平方根</span></span><br><span class="line"><span class="comment">  * @note   1/sqrt(x)</span></span><br><span class="line"><span class="comment">  * @param  x : 输入参数</span></span><br><span class="line"><span class="comment">  * @retval y : 反平方根结果</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">float</span> <span class="title function_">inv_sqrt</span><span class="params">(<span class="type">float</span> x)</span> </span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">float</span> halfx = <span class="number">0.5f</span> * x;</span><br><span class="line">	<span class="type">float</span> y     = x;</span><br><span class="line">	<span class="type">long</span>  i     = *(<span class="type">long</span>*)&amp;y;</span><br><span class="line">	</span><br><span class="line">	i = <span class="number">0x5f3759df</span> - (i &gt;&gt; <span class="number">1</span>);</span><br><span class="line">	y = *(<span class="type">float</span>*)&amp;i;</span><br><span class="line">	y = y * (<span class="number">1.5f</span> - (halfx * y * y));</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">return</span> y;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  Mahony融合算法（6轴版）</span></span><br><span class="line"><span class="comment">  * @note   只负责迭代环路，初始化另外提前做</span></span><br><span class="line"><span class="comment">  * @param  q : 四元数（数组）</span></span><br><span class="line"><span class="comment">  * @param  gx,gy,gz : 陀螺仪数据（标准dps单位）</span></span><br><span class="line"><span class="comment">  * @param  ax,ay,az : 加速度数据（标准g单位）</span></span><br><span class="line"><span class="comment">  * @retval None</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">MahonyFilter_6Axis</span><span class="params">(<span class="type">float</span> q[<span class="number">4</span>], </span></span><br><span class="line"><span class="params">	                       <span class="type">float</span> gx, <span class="type">float</span> gy, <span class="type">float</span> gz,</span></span><br><span class="line"><span class="params">												 <span class="type">float</span> ax, <span class="type">float</span> ay, <span class="type">float</span> az)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">float</span> normFactor;</span><br><span class="line">	<span class="type">float</span> halfvx, halfvy, halfvz;	<span class="comment">// 估计的重力加速度矢量，half表示半值</span></span><br><span class="line">	<span class="type">float</span> halfex, halfey, halfez; <span class="comment">// 误差向量</span></span><br><span class="line">	<span class="type">float</span> q0 = q[<span class="number">0</span>],q1 = q[<span class="number">1</span>], q2 = q[<span class="number">2</span>], q3 = q[<span class="number">3</span>];</span><br><span class="line">	</span><br><span class="line">	<span class="type">float</span> q0q0 = q[<span class="number">0</span>]*q[<span class="number">0</span>];</span><br><span class="line">	<span class="type">float</span> q0q1 = q[<span class="number">0</span>]*q[<span class="number">1</span>];</span><br><span class="line">	<span class="type">float</span> q0q2 = q[<span class="number">0</span>]*q[<span class="number">2</span>];</span><br><span class="line">	<span class="type">float</span> q0q3 = q[<span class="number">0</span>]*q[<span class="number">3</span>];</span><br><span class="line">	<span class="type">float</span> q1q1 = q[<span class="number">1</span>]*q[<span class="number">1</span>];</span><br><span class="line">	<span class="type">float</span> q1q2 = q[<span class="number">1</span>]*q[<span class="number">2</span>];</span><br><span class="line">	<span class="type">float</span> q1q3 = q[<span class="number">1</span>]*q[<span class="number">3</span>];</span><br><span class="line">	<span class="type">float</span> q2q2 = q[<span class="number">2</span>]*q[<span class="number">2</span>];   </span><br><span class="line">	<span class="type">float</span> q2q3 = q[<span class="number">2</span>]*q[<span class="number">3</span>];</span><br><span class="line">	<span class="type">float</span> q3q3 = q[<span class="number">3</span>]*q[<span class="number">3</span>];  </span><br><span class="line"></span><br><span class="line">	<span class="comment">// 只在加速度计数据有效时才进行运算</span></span><br><span class="line">	<span class="keyword">if</span>((ax != <span class="number">0.0f</span>) || (ay != <span class="number">0.0f</span>) || (az != <span class="number">0.0f</span>)) </span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">// 将加速度计得到的实际重力加速度向量v单位化</span></span><br><span class="line">		normFactor = inv_sqrt(ax * ax + ay * ay + az * az); <span class="comment">//向量模长倒数</span></span><br><span class="line">		ax *= normFactor;</span><br><span class="line">		ay *= normFactor;</span><br><span class="line">		az *= normFactor;        </span><br><span class="line"></span><br><span class="line">		<span class="comment">// 通过四元数（旋转矩阵）得到理论重力加速度在机体坐标系下的向量值 </span></span><br><span class="line">		<span class="comment">// 注意，这里实际上是矩阵第三列*1/2，在开头对Kp Ki的宏定义均为2*增益，这样处理目的是减少乘法运算量</span></span><br><span class="line">		halfvx = q1q3 - q0q2;</span><br><span class="line">		halfvy = q0q1 + q2q3;</span><br><span class="line">		halfvz = q0q0 - <span class="number">0.5f</span> + q3q3;	<span class="comment">// q0q0 - q1q1 - q2q2 + q3q3 的优化版（|q| =1）</span></span><br><span class="line">	</span><br><span class="line">		<span class="comment">// 求误差：实际重力加速度向量（测量值）与理论重力加速度向量（估计值）做外积</span></span><br><span class="line">		halfex = (ay * halfvz - az * halfvy);</span><br><span class="line">		halfey = (az * halfvx - ax * halfvz);</span><br><span class="line">		halfez = (ax * halfvy - ay * halfvx);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span>(twoKi &gt; <span class="number">0.0f</span>) </span><br><span class="line">		&#123;</span><br><span class="line">			<span class="comment">// 积分过程</span></span><br><span class="line">			integralFBx += twoKi * halfex * (<span class="number">1.0f</span> / sampleFreq);	</span><br><span class="line">			integralFBy += twoKi * halfey * (<span class="number">1.0f</span> / sampleFreq);</span><br><span class="line">			integralFBz += twoKi * halfez * (<span class="number">1.0f</span> / sampleFreq);</span><br><span class="line"></span><br><span class="line">			<span class="comment">// 积分项</span></span><br><span class="line">			gx += integralFBx;</span><br><span class="line">			gy += integralFBy;</span><br><span class="line">			gz += integralFBz;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> &#123;</span><br><span class="line">			integralFBx = <span class="number">0.0f</span>;	</span><br><span class="line">			integralFBy = <span class="number">0.0f</span>;</span><br><span class="line">			integralFBz = <span class="number">0.0f</span>;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 比例项</span></span><br><span class="line">		gx += twoKp * halfex;</span><br><span class="line">		gy += twoKp * halfey;</span><br><span class="line">		gz += twoKp * halfez;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 四元数 微分方程</span></span><br><span class="line">	gx *= (<span class="number">0.5f</span> * (<span class="number">1.0f</span> / sampleFreq));</span><br><span class="line">	gy *= (<span class="number">0.5f</span> * (<span class="number">1.0f</span> / sampleFreq));</span><br><span class="line">	gz *= (<span class="number">0.5f</span> * (<span class="number">1.0f</span> / sampleFreq));</span><br><span class="line">	</span><br><span class="line">	q[<span class="number">0</span>] += (-q1 * gx - q2 * gy - q3 * gz);</span><br><span class="line">	q[<span class="number">1</span>] += (q0 * gx + q2 * gz - q3 * gy);</span><br><span class="line">	q[<span class="number">2</span>] += (q0 * gy - q1 * gz + q3 * gx);</span><br><span class="line">	q[<span class="number">3</span>] += (q0 * gz + q1 * gy - q2 * gx); </span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 单位化四元数</span></span><br><span class="line">	normFactor = inv_sqrt(q[<span class="number">0</span>] * q[<span class="number">0</span>] + q[<span class="number">1</span>] * q[<span class="number">1</span>] + q[<span class="number">2</span>] * q[<span class="number">2</span>] + q[<span class="number">3</span>] * q[<span class="number">3</span>]);</span><br><span class="line">	q[<span class="number">0</span>] *= normFactor;</span><br><span class="line">	q[<span class="number">1</span>] *= normFactor;</span><br><span class="line">	q[<span class="number">2</span>] *= normFactor;</span><br><span class="line">	q[<span class="number">3</span>] *= normFactor;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>迭代得到的四元数，可以需要时用来解欧拉角：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  四元数转欧拉角</span></span><br><span class="line"><span class="comment">  * @note   函数内不校验四元数的准确性</span></span><br><span class="line"><span class="comment">  * @param  pIMU : 标准单位制的陀螺仪数据区</span></span><br><span class="line"><span class="comment">  * @retval None</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">trans_quaternionToEulerAngle</span><span class="params">(imu_rawData_t* pIMU)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">float</span> q[<span class="number">4</span>];</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> i =<span class="number">0</span>; i &lt;<span class="number">4</span>; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		q[i] = pIMU-&gt;quaternion_body2Earth[i];</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">/* yaw    -pi----pi */</span></span><br><span class="line">	pIMU-&gt;yaw = -<span class="built_in">atan2</span>(<span class="number">2</span>*q[<span class="number">1</span>]*q[<span class="number">2</span>] + <span class="number">2</span>*q[<span class="number">0</span>]*q[<span class="number">3</span>], <span class="number">-2</span>*q[<span class="number">2</span>]*q[<span class="number">2</span>] - <span class="number">2</span>*q[<span class="number">3</span>]*q[<span class="number">3</span>] + <span class="number">1</span>)* <span class="number">57.3</span>; </span><br><span class="line">	<span class="comment">/* pitch  -pi/2----pi/2 */</span></span><br><span class="line">	pIMU-&gt;pitch = -<span class="built_in">asin</span>(<span class="number">-2</span>*q[<span class="number">1</span>]*q[<span class="number">3</span>] + <span class="number">2</span>*q[<span class="number">0</span>]*q[<span class="number">2</span>])* <span class="number">57.3</span>;   </span><br><span class="line">	<span class="comment">/* roll   -pi----pi  */</span>	</span><br><span class="line">	pIMU-&gt;roll =  <span class="built_in">atan2</span>(<span class="number">2</span>*q[<span class="number">2</span>]*q[<span class="number">3</span>] + <span class="number">2</span>*q[<span class="number">0</span>]*q[<span class="number">1</span>], <span class="number">-2</span>*q[<span class="number">1</span>]*q[<span class="number">1</span>] - <span class="number">2</span>*q[<span class="number">2</span>]*q[<span class="number">2</span>] + <span class="number">1</span>)* <span class="number">57.3</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="MEMS陀螺仪工作原理"><a href="#MEMS陀螺仪工作原理" class="headerlink" title="MEMS陀螺仪工作原理"></a>MEMS陀螺仪工作原理</h2><p><img src="http://imgjry.fangyikuan.xyz/20220728/20220728-ICM42688SPI-8.jpg" alt="科里奥利力"></p>
+<p>首先介绍物理学中的科里奥利力（Coriolis force），是对旋转体系中进行直线运动的质点由于惯性相对于旋转体系产生的直线运动的偏移的一种描述。科里奥利力来自于物体运动所具有的惯性。说白了，其实就是射击游戏里的<strong>打提前量，但是目标是旋转的</strong>。这玩意的发现来源于炮弹射不准问题，因为地球是有自转的（旋转系），所以在某个时刻瞄准目标打炮时，炮弹只会直着飞出去（相对于宇宙这个静止惯性系），然而在飞的过程中目标跟着地球转走了，就打不准；从地面上受害者的角度来看，就是炮弹自己慢慢拐弯走了？？？🤣聪明的炮兵就因此就请出了科里奥利力来算射击提前量：</p>
+<p>$$<br>\vec F_c &#x3D; -2m(\vec \omega \times \vec v)<br>$$<br>式中，$m$是炮弹的质量，$\vec v$是炮弹的飞行速度，$\vec \omega$是受害者所在旋转系的角速度。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220728/20220728-ICM42688SPI-9.gif" alt="MEMS陀螺仪原理"></p>
+<p>MEMS陀螺仪也是这么个道理，内部有一个微机电（Micro-Electro-Mechanical）谐振腔，腔内有一个小振子受到交替电压驱动作振动，当外壳带着谐振腔旋转时，里面的振子因为科里奥利力导致振动方向偏移，测量这个方向偏移就可以得到<em>旋转速度</em>了。</p>
+<h2 id="MEMS加速度计原理"><a href="#MEMS加速度计原理" class="headerlink" title="MEMS加速度计原理"></a>MEMS加速度计原理</h2><p>加速度计的不同类型原理有：</p>
+<ul>
+<li>压电式：里面有个质量块以及用来测量的压电元件，加减速时由于压力不同导致压电元件产生的电压不同：<br>  $$<br>  F &#x3D; ma \\<br>  V &#x3D; kF<br>  $$</li>
+<li>电容式：内部一样有一个质量块，加减速时拉动电容的极板，通过测量电容量即可</li>
+<li>热感式：没有任何质量块，它的中央有一个加热体，周边是温度传感器，里面是密闭的气腔，工作时在加热体的作用下，气体在内部形成一个热气团，热气团的比重和周围的冷气是有差异的，通过惯性热气团的移动形成的热场变化让感应器感应到加速度值</li>
+</ul>
+<h2 id="初始化（信号链配置）详解"><a href="#初始化（信号链配置）详解" class="headerlink" title="初始化（信号链配置）详解"></a>初始化（信号链配置）详解</h2><p>在上面我们给出了使用<code>ICM42688</code>芯片的应用硬件电路和高速<code>SPI</code>驱动的相关工作，以及将陀螺仪数据与加速度计数据进行融合的入门级<code>Mahony</code>算法。在最后补充对ICM42688的初始化过程，在上电&#x2F;复位后需要依次初始化的有：</p>
+<ol>
+<li>软件复位</li>
+<li>设置外部时钟源与PLL</li>
+<li>配置陀螺仪信号链</li>
+<li>配置加速度计信号链</li>
+<li>配置中断</li>
+<li>配置FIFO</li>
+<li>使能供电</li>
+</ol>
+<p>所有功能的描述在数据手册上都能找到，这里着重讲解信号链（下图）的配置，因为这关系到采集数据的有效性和可靠性问题。陀螺仪由于上方讨论的振子结构问题，所以输出信号的噪声比较大；因此相比于加速度计的信号链，陀螺仪加入了一级“限波器”（Notch Filter），用来消除振子的工作频率噪声。随后是两级通用的滤波器：抗混叠滤波器（Anti-Alias Filter）和用户接口滤波器（UI Filter），中间夹着一个硬件的偏置补偿。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220728/20220728-ICM42688SPI-10.png" alt="ICM426XX信号链结构"></p>
+<p>UIF是由输出数据率（ODR：output data rate）、阶数（Order）、带宽（Bandwidth）或群延迟（Group Delay）三个指标进行配置，主要作用是输出系统需要的数据到寄存器中；因为MEMS传感器的带宽非常大，所以根据奈归斯特采样定理，需要将进入UIF的信号带宽限制为ODR的一半，因此AAF的作用就是这个了。</p>
+<p>下图是使用AAF前后的信号波形情况，可以看出对于陀螺仪来说效果非常明显，而加速度计本身噪声就比较少。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220728/20220728-ICM42688SPI-11.png" alt="启用AAF前后对比"></p>
+<p>以下是初始化的实现代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  ICM426XX设备初始化</span></span><br><span class="line"><span class="comment">  *         软复位、配置外部时钟和RTC、配置信号链参数、</span></span><br><span class="line"><span class="comment">  *         加载预准数据、配置中断、配置FIFO</span></span><br><span class="line"><span class="comment">  * @note   需要预先配置好处理器的SPI接口、中断引脚、RTC时钟输出</span></span><br><span class="line"><span class="comment">  * @param  None</span></span><br><span class="line"><span class="comment">  * @retval None</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">icm426xx_deviceInit</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="meta">#<span class="keyword">ifndef</span> _RAWSIGNAL_ANALYSIS_ICM426XX_</span></span><br><span class="line">	<span class="comment">// 陀螺仪抗混叠滤波器（AAF）带宽，更改配置需查手册中的参数表</span></span><br><span class="line">	<span class="type">uint16_t</span> gyro_aaf_delta = <span class="number">2</span>;		<span class="comment">/* 84 Hz（3dB） */</span></span><br><span class="line">	<span class="type">uint16_t</span> gyro_aaf_deltasqr = gyro_aaf_delta*gyro_aaf_delta;</span><br><span class="line">	<span class="type">uint8_t</span> gyro_aaf_bitshift = <span class="number">13</span>;</span><br><span class="line">	<span class="comment">// 加速度计抗混叠滤波器（AAF）带宽</span></span><br><span class="line">	<span class="type">uint16_t</span> accel_aaf_delta = <span class="number">2</span>;		<span class="comment">/* 84 Hz（3dB） */</span></span><br><span class="line">	<span class="type">uint16_t</span> accel_aaf_deltasqr = gyro_aaf_delta*gyro_aaf_delta;</span><br><span class="line">	<span class="type">uint8_t</span> accel_aaf_bitshift = <span class="number">13</span>;</span><br><span class="line">	<span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">	</span><br><span class="line">	imuStatus = ICM426XX_STATUS_NOREADY;	<span class="comment">// 标志设备还没准备好</span></span><br><span class="line">	</span><br><span class="line">	imu.quaternion_body2Earth[<span class="number">0</span>] = <span class="number">1</span>;	<span class="comment">// 初始化四元数</span></span><br><span class="line">	imu.quaternion_body2Earth[<span class="number">1</span>] = <span class="number">0</span>;</span><br><span class="line">	imu.quaternion_body2Earth[<span class="number">2</span>] = <span class="number">0</span>;</span><br><span class="line">	imu.quaternion_body2Earth[<span class="number">3</span>] = <span class="number">0</span>;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// - 等待设备上电安全完成</span></span><br><span class="line">	HAL_Delay(<span class="number">3</span>);	<span class="comment">// 3ms</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">// - 复位设备--------------------------------------------------------------------------</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_REG_BANK_SEL, <span class="number">0</span>);	<span class="comment">// 切换至寄存器BANK 0</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_DEVICE_CONFIG, ICM426XX_DEVICE_CONFIG_RESET_EN);	<span class="comment">// 软件复位</span></span><br><span class="line">	HAL_Delay(<span class="number">2</span>);	<span class="comment">// 等待内部复位操作完成，最少1ms</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">// - 设置外部时钟源（32.768kHz）和RTC时间戳---------------------------------------------</span></span><br><span class="line">	</span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_REG_BANK_SEL,<span class="number">1</span>);	<span class="comment">// 切换至寄存器BANK 1</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_INTF_CONFIG5_B1,</span><br><span class="line">	                                   ICM426XX_INTF_CONFIG5_PIN9_asCLKIN</span><br><span class="line">	                                   ); <span class="comment">// 配置9脚为 外部时钟输入模式</span></span><br><span class="line">	</span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_REG_BANK_SEL,<span class="number">0</span>);	<span class="comment">// 切换至寄存器BANK 0</span></span><br><span class="line">	<span class="comment">// 低功耗模式下加速度计使用内部RC震荡器；使能PLL 和  RTC</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_INTF_CONFIG1,</span><br><span class="line">	                                   (ICM426XX_INTF_CONFIG1_ACCEL_LP_CLK_RCOSC | \</span><br><span class="line">																		 ICM426XX_INTF_CONFIG1_RTC_MODE_EN | \</span><br><span class="line">																		 <span class="number">0x01</span>)</span><br><span class="line">	                                   ); </span><br><span class="line">	<span class="comment">// 时间戳设置：时间戳导入可读寄存器、精度1个标准RTC周期、帧同步使能、使能时间戳</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_TMST_CONFIG,</span><br><span class="line">	                                   (ICM426XX_TMST_CONFIG_TMST_TO_REGS_EN | \</span><br><span class="line">																		  ICM426XX_TMST_CONFIG_RESOL_16us       | \</span><br><span class="line">																			ICM426XX_TMST_CONFIG_TMST_FSYNC_EN   | \</span><br><span class="line">																			ICM426XX_TMST_CONFIG_TMST_EN</span><br><span class="line">																			)</span><br><span class="line">																		);</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// - 设置陀螺仪的信号链参数------------------------------------------------------------</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">// -- 陀螺仪的陷波器（NotchFilter）参数配置，根据实际情况选用</span></span><br><span class="line">	<span class="comment">//icm426xx_Gyro_ConfigNotchFilter(2,ICM426XX_GYRO_NF_BW_680Hz);</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">// -- 陀螺仪的抗混叠滤波器（Anti-Alias Filter）配置</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_REG_BANK_SEL,<span class="number">1</span>);	<span class="comment">// 切换至寄存器BANK 1</span></span><br><span class="line">	</span><br><span class="line">	<span class="meta">#<span class="keyword">ifndef</span> _RAWSIGNAL_ANALYSIS_ICM426XX_</span></span><br><span class="line">		icm426xx_spi_master_write_register(MPUREG_GYRO_CONFIG_STATIC3_B1,</span><br><span class="line">																			 (gyro_aaf_delta &amp; <span class="number">0x3f</span>)</span><br><span class="line">																			);</span><br><span class="line">		icm426xx_spi_master_write_register(MPUREG_GYRO_CONFIG_STATIC4_B1,</span><br><span class="line">																			 (gyro_aaf_deltasqr &amp; <span class="number">0xff</span>)</span><br><span class="line">																			);</span><br><span class="line">		icm426xx_spi_master_write_register(MPUREG_GYRO_CONFIG_STATIC5_B1,</span><br><span class="line">																			 ( ((gyro_aaf_deltasqr&gt;&gt;<span class="number">8</span>) &amp; <span class="number">0x0f</span>) | (gyro_aaf_bitshift&lt;&lt;<span class="number">4</span>) )</span><br><span class="line">																			);</span><br><span class="line">																		</span><br><span class="line">		<span class="meta">#<span class="keyword">ifdef</span> _DONT_USE_NOTCHFILTER_ICM426XX_</span></span><br><span class="line">			<span class="comment">// ---- 使能AAF，不使用NF</span></span><br><span class="line">			icm426xx_spi_master_write_register(MPUREG_GYRO_CONFIG_STATIC2_B1,</span><br><span class="line">																				 (ICM426XX_GYRO_AAF_EN | ICM426XX_GYRO_NF_DIS)</span><br><span class="line">																				);</span><br><span class="line">		<span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">			<span class="comment">// ---- 使能AAF和NF</span></span><br><span class="line">			icm426xx_spi_master_write_register(MPUREG_GYRO_CONFIG_STATIC2_B1,</span><br><span class="line">																				 (ICM426XX_GYRO_AAF_EN | ICM426XX_GYRO_NF_EN)</span><br><span class="line">																				);</span><br><span class="line">		<span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">	<span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">		<span class="comment">// ---- 关闭AAF和NF，从而收集原始数据</span></span><br><span class="line">		icm426xx_spi_master_write_register(MPUREG_GYRO_CONFIG_STATIC2_B1,</span><br><span class="line">																			 (ICM426XX_GYRO_AAF_DIS | ICM426XX_GYRO_NF_DIS)</span><br><span class="line">																			);</span><br><span class="line">	<span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">																		</span><br><span class="line">	<span class="comment">// -- 设置用户接口滤波器（UI Filter）和量程（FSR）</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_REG_BANK_SEL,  <span class="number">0</span>);	<span class="comment">// 切换至寄存器BANK 0</span></span><br><span class="line">	<span class="comment">// 3阶，200Hz 数据率（ODR），带宽104.8Hz（群延时3.8ms）；量程500dps</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_GYRO_CONFIG0,</span><br><span class="line">	                                   (_USER_GYRO_FULLSCALE_ | ICM426XX_GYRO_CONFIG0_ODR_200_HZ)</span><br><span class="line">																		 ); <span class="comment">// FSR 和 ODR</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_GYRO_CONFIG1,</span><br><span class="line">	                                   (ICM426XX_GYRO_CONFIG_GYRO_UI_FILT_ORD_3RD_ORDER | (<span class="number">2</span>&lt;&lt;<span class="number">1</span>))</span><br><span class="line">																		 );	<span class="comment">// 阶数</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_ACCEL_GYRO_CONFIG0,</span><br><span class="line">	                                   (ICM426XX_GYRO_ACCEL_CONFIG0_ACCEL_FILT_BW_14 | ICM426XX_GYRO_ACCEL_CONFIG0_GYRO_FILT_BW_14)</span><br><span class="line">																		 ); <span class="comment">// 带宽（加速度计和陀螺仪）</span></span><br><span class="line">				 </span><br><span class="line">	</span><br><span class="line">	<span class="comment">// - 设置加速度计的信号链--------------------------------------------------------------</span></span><br><span class="line">	</span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_REG_BANK_SEL,<span class="number">2</span>);	<span class="comment">// 切换至寄存器BANK2</span></span><br><span class="line">	<span class="comment">// -- 加速度计的抗混叠滤波器（Anti-Alias Filter）配置</span></span><br><span class="line">	<span class="meta">#<span class="keyword">ifndef</span> _RAWSIGNAL_ANALYSIS_ICM426XX_</span></span><br><span class="line">		icm426xx_spi_master_write_register(MPUREG_ACCEL_CONFIG_STATIC2_B2,</span><br><span class="line">																			 ((accel_aaf_delta &lt;&lt; BIT_ACCEL_AAF_DELT_POS) | \</span><br><span class="line">																			  ICM426XX_ACCEL_AAF_EN)</span><br><span class="line">																			);	<span class="comment">// 这里顺带使能了AAF</span></span><br><span class="line">		icm426xx_spi_master_write_register(MPUREG_ACCEL_CONFIG_STATIC3_B2,</span><br><span class="line">																			 (accel_aaf_deltasqr &amp; <span class="number">0xff</span>)</span><br><span class="line">																			);</span><br><span class="line">		icm426xx_spi_master_write_register(MPUREG_ACCEL_CONFIG_STATIC4_B2,</span><br><span class="line">																			 ( ((accel_aaf_deltasqr&gt;&gt;<span class="number">8</span>) &amp; <span class="number">0x0f</span>) | (accel_aaf_bitshift&lt;&lt;<span class="number">4</span>) )</span><br><span class="line">																			);</span><br><span class="line">	<span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">		<span class="comment">// 关闭AAF，从而收集原始数据</span></span><br><span class="line">		icm426xx_spi_master_write_register(MPUREG_ACCEL_CONFIG_STATIC2_B2,</span><br><span class="line">																			 ICM426XX_ACCEL_AAF_DIS);</span><br><span class="line">	<span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">																		</span><br><span class="line">	<span class="comment">// -- 设置用户接口滤波器（UI Filter）和量程（FSR）</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_REG_BANK_SEL,  <span class="number">0</span>);	<span class="comment">// 切换至寄存器BANK 0</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 3阶，200Hz 数据率（ODR），带宽104.8Hz（群延时3.8ms）；量程500dps	</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_ACCEL_CONFIG0,</span><br><span class="line">	                                   (_USER_ACCL_FULLSCALE_ | ICM426XX_ACCEL_CONFIG0_ODR_200_HZ)</span><br><span class="line">																		 ); <span class="comment">// FSR 和 ODR</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_ACCEL_CONFIG1,</span><br><span class="line">	                                   (ICM426XX_ACCEL_CONFIG_ACCEL_UI_FILT_ORD_3RD_ORDER | (<span class="number">2</span>&lt;&lt;<span class="number">1</span>))</span><br><span class="line">																		 );	<span class="comment">// 阶数</span></span><br><span class="line">																		 <span class="comment">// <span class="doctag">NOTE:</span> 这里不操作带宽，因为在陀螺仪配置时一起配了</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">// - 加载预先校准好的6轴偏置数据-------------------------------------------------------</span></span><br><span class="line">		<span class="comment">// 外部加载！</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">// - 配置中断 并启动中断输出-----------------------------------------------------------</span></span><br><span class="line">	</span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_REG_BANK_SEL,  <span class="number">0</span>);	<span class="comment">// 切换至寄存器BANK 0</span></span><br><span class="line">	<span class="comment">// 配置INT1的输出模式：推挽（Push Pull），高电平有效，脉冲型中断输出</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_INT_CONFIG,</span><br><span class="line">	                                    (ICM426XX_INT_CONFIG_INT1_DRIVE_CIRCUIT_PP | \</span><br><span class="line">																			 ICM426XX_INT_CONFIG_INT1_POLARITY_HIGH)</span><br><span class="line">																		);</span><br><span class="line">	<span class="comment">// 配置中断源</span></span><br><span class="line">	<span class="meta">#<span class="keyword">ifdef</span> _USER_USE_ICM426XX_FIFO_</span></span><br><span class="line">	<span class="comment">// 可触发的中断源：FIFO阈值、FIFO满</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_INT_SOURCE0,</span><br><span class="line">	                                   (BIT_INT_SOURCE0_FIFO_THS_INT1_EN  | \</span><br><span class="line">																		BIT_INT_SOURCE0_FIFO_FULL_INT1_EN</span><br><span class="line">																			 )</span><br><span class="line">																		);</span><br><span class="line">	<span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">	<span class="comment">// 可触发的中断源：UI滤波器 数据可读</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_INT_SOURCE0,</span><br><span class="line">	                                   BIT_INT_SOURCE0_UI_DRDY_INT1_EN</span><br><span class="line">																		);</span><br><span class="line">	<span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">	<span class="comment">// 配置清除中断方式</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_INT_CONFIG0,</span><br><span class="line">	                                    (ICM426XX_UI_DRDY_INT_CLEAR_ON_STATUS_READ | \</span><br><span class="line">																			 ICM426XX_FIFO_THS_INT_CLEAR_ON_STATUS_READ | \</span><br><span class="line">																			 ICM426XX_FIFO_FULL_INT_CLEAR_ON_STATUS_READ</span><br><span class="line">																			)</span><br><span class="line">																		);</span><br><span class="line">	<span class="comment">// 配置中断信号的脉冲宽度：100us宽度脉冲，使能中断有效抑制；最后异步复位中断脚</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_INT_CONFIG1,</span><br><span class="line">	                                    (ICM426XX_INT_TPULSE_DURATION_100_US | \</span><br><span class="line">																			 ICM426XX_INT_TDEASSERT_ENABLED | \</span><br><span class="line">																			 ICM426XX_INT_CONFIG1_ASY_RST_ENABLED)</span><br><span class="line">																		);</span><br><span class="line">																			 </span><br><span class="line">	<span class="comment">// - 配置FIFO的数据格式 并启动FIFO-----------------------------------------------------</span></span><br><span class="line">	</span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_REG_BANK_SEL,  <span class="number">0</span>);	<span class="comment">// 切换至寄存器BANK 0</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">//复位FIFO</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_FIFO_CONFIG,</span><br><span class="line">	                                   ICM426XX_FIFO_CONFIG_MODE_BYPASS</span><br><span class="line">																		);</span><br><span class="line">	</span><br><span class="line">	<span class="meta">#<span class="keyword">ifdef</span> _USER_USE_ICM426XX_FIFO_</span></span><br><span class="line">	<span class="comment">//配置FIFO的无效数据报告方式、计数方式、数据字端</span></span><br><span class="line">	<span class="comment">//// -32768或-32767表示无效数据； 按包计数； FIFO计数器和传感器数据包按“小字端”组织</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_INTF_CONFIG0,</span><br><span class="line">	                                    (ICM426XX_INTF_CONFIG0_FIFO_SREG_INVALID_IND_EN | \</span><br><span class="line">																			 ICM426XX_INTF_CONFIG0_FIFO_COUNT_REC_RECORD | \</span><br><span class="line">																			 ICM426XX_INTF_CONFIG0_FIFO_COUNT_LITTLE_ENDIAN | \</span><br><span class="line">																			 ICM426XX_INTF_CONFIG0_DATA_LITTLE_ENDIAN</span><br><span class="line">																			 )</span><br><span class="line">																		);</span><br><span class="line">	</span><br><span class="line">	<span class="comment">//配置FIFO包格式为 “Packet 3”：Header（1Byte）+Accel（6Byte）+Gyro（6Byte）+Temp（1Byte）+Time（2Byte）</span></span><br><span class="line">	<span class="comment">/* 允许断包读取、使能包数量过多中断、不用高精度扩展、使能时间戳、使能温度数据、使能陀螺仪、使能加速度计*/</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_FIFO_CONFIG1,</span><br><span class="line">	                                    (ICM426XX_FIFO_CONFIG1_RESUME_PARTIAL_RD_EN | \</span><br><span class="line">																			 ICM426XX_FIFO_CONFIG1_WM_GT_TH_EN           | \</span><br><span class="line">																			 ICM426XX_FIFO_CONFIG1_HIRES_DIS             | \</span><br><span class="line">																			 ICM426XX_FIFO_CONFIG1_TMST_FSYNC_EN         | \</span><br><span class="line">																			 ICM426XX_FIFO_CONFIG1_TEMP_EN               | \</span><br><span class="line">																			 ICM426XX_FIFO_CONFIG1_GYRO_EN               | \</span><br><span class="line">																			 ICM426XX_FIFO_CONFIG1_ACCEL_EN) </span><br><span class="line">																		 );</span><br><span class="line">	<span class="comment">// FIFO计数报警值（WaterMark）为4个 包！</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_FIFO_CONFIG2,   <span class="number">4</span>);</span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_FIFO_CONFIG2+<span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">	</span><br><span class="line">	<span class="comment">//配置FIFO为连续数据流模式，（满时新数据会覆盖旧数据）</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_FIFO_CONFIG,</span><br><span class="line">	                                   ICM426XX_FIFO_CONFIG_MODE_STOP_ON_FULL</span><br><span class="line">																		);</span><br><span class="line">	<span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">// - 电源管理配置（给陀螺仪和加速度计上电）--------------------------------------------</span></span><br><span class="line">	</span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_REG_BANK_SEL,  <span class="number">0</span>);	<span class="comment">// 切换至寄存器BANK 0</span></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_PWR_MGMT_0,</span><br><span class="line">	                                    (ICM426XX_PWR_MGMT_0_TEMP_EN | \</span><br><span class="line">																			 ICM426XX_PWR_MGMT_0_IDLE_EN | \</span><br><span class="line">																			 ICM426XX_PWR_MGMT_0_GYRO_MODE_LN | \</span><br><span class="line">																			 ICM426XX_PWR_MGMT_0_ACCEL_MODE_LN</span><br><span class="line">																			 )</span><br><span class="line">																		);</span><br><span class="line">	HAL_Delay(<span class="number">50</span>);	<span class="comment">// 官方要求陀螺仪切换模式后，必须等最少45ms，这里保险起见50ms</span></span><br><span class="line">	</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// - 配置完成------------------------------------------------------------------------</span></span><br><span class="line"></span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_REG_BANK_SEL,  <span class="number">0</span>);	<span class="comment">// 切换至寄存器BANK 0</span></span><br><span class="line">	imuStatus = ICM426XX_STATUS_NORMAL;</span><br><span class="line">	<span class="keyword">return</span>;</span><br><span class="line">	 </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>考虑到系统在工作的过程中，环境因素的变化，因此将加载偏置的接口单独放在初始化接口的外部：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  加载各轴偏置量</span></span><br><span class="line"><span class="comment">  * @note   偏置量在复杂环境下要不断调整</span></span><br><span class="line"><span class="comment">  * @param  pOffset : 加载的偏置量数据区指针（遵照ICM426XX寄存器格式）</span></span><br><span class="line"><span class="comment">  * @retval None</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">icm426xx_load6AxisOffset</span><span class="params">(<span class="type">uint8_t</span> pOffset[<span class="number">9</span>])</span></span><br><span class="line">&#123;</span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_REG_BANK_SEL, <span class="number">4</span>);	<span class="comment">// 切换至寄存器BANK 0</span></span><br><span class="line">	</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> addr=<span class="number">0</span>; addr &lt; <span class="number">9</span>; addr ++)</span><br><span class="line">	&#123;</span><br><span class="line">		icm426xx_spi_master_write_register(MPUREG_OFFSET_USER_0_B4 + addr,</span><br><span class="line">		                                   pOffset[addr]);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	icm426xx_spi_master_write_register(MPUREG_REG_BANK_SEL, <span class="number">0</span>);	<span class="comment">// 切换至寄存器BANK 0</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  求解各轴偏置量（平均法）</span></span><br><span class="line"><span class="comment">  * @note   在接收数据中断中调用</span></span><br><span class="line"><span class="comment">  * @param  pOffset : 存储解算出的偏置数据寄存器格式</span></span><br><span class="line"><span class="comment">  * @retval None</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">icm426xx_getAverageOffset</span><span class="params">(<span class="type">uint8_t</span> pOffset[<span class="number">9</span>])</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">for</span> (<span class="type">int</span> addr =<span class="number">0</span>; addr &lt; <span class="number">3</span>; addr++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">// 求平均量</span></span><br><span class="line">		gyroAxisSum[addr] = gyroAxisSum[addr] &gt;&gt;<span class="number">9</span> ;	<span class="comment">// log2(512) = 9</span></span><br><span class="line">		accelAxisSum[addr] = accelAxisSum[addr] &gt;&gt;<span class="number">9</span>;</span><br><span class="line">		</span><br><span class="line">		<span class="comment">// <span class="doctag">NOTE:</span>陀螺仪偏置精度固定为 (1/32dps)/LSB（±64dps补偿范围），这里做比例变换</span></span><br><span class="line">		gyroAxisSum[addr] = -(gyroAxisSum[addr] * <span class="number">500</span>) &gt;&gt; (<span class="number">6</span>+<span class="number">4</span>);	<span class="comment">// log2(64)=6是目标FSR，另外的4是16位精度到12位精度的损失</span></span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// <span class="doctag">NOTE:</span>加速度计偏置精度为：(0.5mg)/LSB （±1g补偿范围）</span></span><br><span class="line">	accelAxisSum[<span class="number">0</span>] = -(accelAxisSum[<span class="number">0</span>] * <span class="number">4</span>) &gt;&gt; <span class="number">4</span>;		<span class="comment">// X轴补偿为 0</span></span><br><span class="line">	accelAxisSum[<span class="number">1</span>] = -(accelAxisSum[<span class="number">1</span>] * <span class="number">4</span>) &gt;&gt; <span class="number">4</span>;		<span class="comment">// Y轴补偿为 0</span></span><br><span class="line">	accelAxisSum[<span class="number">2</span>] = -((accelAxisSum[<span class="number">2</span>] * <span class="number">4</span>) &gt;&gt; <span class="number">4</span>) + <span class="number">1000</span>;		<span class="comment">// Z轴补偿为 1g</span></span><br><span class="line"></span><br><span class="line">	</span><br><span class="line">	pOffset[<span class="number">0</span>] = gyroAxisSum[<span class="number">0</span>]  &amp; <span class="number">0x00ff</span>;	<span class="comment">// X轴陀螺仪低位</span></span><br><span class="line">	pOffset[<span class="number">1</span>] = ((gyroAxisSum[<span class="number">1</span>]&amp; <span class="number">0x0f00</span>) &gt;&gt; <span class="number">4</span>) | ((gyroAxisSum[<span class="number">0</span>]&amp;<span class="number">0x0f00</span>) &gt;&gt; <span class="number">8</span>);	<span class="comment">// Y和X的高位</span></span><br><span class="line">	pOffset[<span class="number">2</span>] = gyroAxisSum[<span class="number">1</span>]  &amp; <span class="number">0x00ff</span>;	<span class="comment">// Y轴陀螺仪低位</span></span><br><span class="line">	pOffset[<span class="number">3</span>] = gyroAxisSum[<span class="number">2</span>]  &amp; <span class="number">0x00ff</span>;	<span class="comment">// Z轴陀螺仪低位</span></span><br><span class="line">	</span><br><span class="line">	pOffset[<span class="number">4</span>] = ((accelAxisSum[<span class="number">0</span>]&amp; <span class="number">0x0f00</span>) &gt;&gt; <span class="number">4</span>) | \</span><br><span class="line">	             ((gyroAxisSum[<span class="number">2</span>] &amp; <span class="number">0x0f00</span>) &gt;&gt; <span class="number">8</span>);	<span class="comment">// X轴加速度计高位，Z轴陀螺仪高位</span></span><br><span class="line">	</span><br><span class="line">	pOffset[<span class="number">5</span>] = accelAxisSum[<span class="number">0</span>]  &amp; <span class="number">0x00ff</span>;	<span class="comment">// X轴加速度计低位</span></span><br><span class="line">	pOffset[<span class="number">6</span>] = accelAxisSum[<span class="number">1</span>]  &amp; <span class="number">0x00ff</span>;	<span class="comment">// Y轴加速度计低位</span></span><br><span class="line">	pOffset[<span class="number">7</span>] = ((accelAxisSum[<span class="number">2</span>]&amp; <span class="number">0x0f00</span>) &gt;&gt; <span class="number">4</span>) | ((accelAxisSum[<span class="number">1</span>]&amp;<span class="number">0x0f00</span>) &gt;&gt; <span class="number">8</span>);	<span class="comment">// Z和Y的高位</span></span><br><span class="line">	pOffset[<span class="number">8</span>] = accelAxisSum[<span class="number">2</span>]  &amp; <span class="number">0x00ff</span>;	<span class="comment">// Z轴加速度计低位</span></span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>若使用了中断引脚，则可以按如下进行中断处理：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  中断解析回调函数</span></span><br><span class="line"><span class="comment">  * @note   在MCU中断引脚对应的EXTI函数中调用</span></span><br><span class="line"><span class="comment">  *         只需调用 icm426xx_deviceInit() 接口该函数即可自动触发</span></span><br><span class="line"><span class="comment">  * @param  None</span></span><br><span class="line"><span class="comment">  * @retval None</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">icm426xx_callback_interrupt1</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">uint8_t</span> regVal_int_status;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// - 检验芯片状态</span></span><br><span class="line">	<span class="keyword">if</span>(imuStatus != ICM426XX_STATUS_NORMAL)</span><br><span class="line">		<span class="keyword">return</span>;	<span class="comment">// 芯片不工作退出</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">// - 读取中断状态/标志寄存器</span></span><br><span class="line">	icm426xx_spi_master_read_register(MPUREG_INT_STATUS,</span><br><span class="line">	                                 &amp;regVal_int_status, <span class="number">1</span>);</span><br><span class="line">	</span><br><span class="line">	<span class="meta">#<span class="keyword">ifdef</span> _USER_USE_ICM426XX_FIFO_		<span class="comment">// 仅在使用FIFO的情况下，使用这两个中断</span></span></span><br><span class="line">	<span class="keyword">if</span>(regVal_int_status &amp; BIT_INT_STATUS_FIFO_FULL)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">/* 中断优先级最高：处理FIFO满状态 */</span></span><br><span class="line">		icm426xx_readFIFOPacket(<span class="literal">NULL</span>);	<span class="comment">// 按需要调用 包处理回调函数</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span> <span class="keyword">if</span>(regVal_int_status &amp; BIT_INT_STATUS_FIFO_THS)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">/* 处理FIFO达到阈值状态 */</span></span><br><span class="line">		icm426xx_readFIFOPacket(<span class="literal">NULL</span>);	<span class="comment">// 按需要调用 包处理回调函数</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	<span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">		<span class="keyword">if</span>(regVal_int_status &amp; BIT_INT_STATUS_DRDY)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">/* 数据准备好了 */</span></span><br><span class="line">		icm426xx_getRawData(&amp;imuData);	<span class="comment">// 读取原始数据</span></span><br><span class="line">		</span><br><span class="line">		<span class="keyword">if</span> (sumNum &lt; <span class="number">512</span>)	<span class="comment">// 存储采样数据</span></span><br><span class="line">		&#123;</span><br><span class="line">			<span class="comment">// --- 陀螺仪采样数据 累加</span></span><br><span class="line">			transCache.byte[<span class="number">0</span>] = imuData.gyro_x_L;   transCache.byte[<span class="number">1</span>] = imuData.gyro_x_H;</span><br><span class="line">			gyroAxisSum[<span class="number">0</span>] += transCache.getSign;</span><br><span class="line">			</span><br><span class="line">			transCache.byte[<span class="number">0</span>] = imuData.gyro_y_L;   transCache.byte[<span class="number">1</span>] = imuData.gyro_y_H;</span><br><span class="line">			gyroAxisSum[<span class="number">1</span>] += transCache.getSign;</span><br><span class="line">			</span><br><span class="line">			transCache.byte[<span class="number">0</span>] = imuData.gyro_z_L;   transCache.byte[<span class="number">1</span>] = imuData.gyro_z_H;</span><br><span class="line">			gyroAxisSum[<span class="number">2</span>] += transCache.getSign;</span><br><span class="line">			</span><br><span class="line">			<span class="comment">// --- 加速度计采样数据 累加</span></span><br><span class="line">			transCache.byte[<span class="number">0</span>] = imuData.accel_x_L;   transCache.byte[<span class="number">1</span>] = imuData.accel_x_H;</span><br><span class="line">			accelAxisSum[<span class="number">0</span>] += transCache.getSign;</span><br><span class="line">			</span><br><span class="line">			transCache.byte[<span class="number">0</span>] = imuData.accel_y_L;   transCache.byte[<span class="number">1</span>] = imuData.accel_y_H;</span><br><span class="line">			accelAxisSum[<span class="number">1</span>] += transCache.getSign;</span><br><span class="line">			</span><br><span class="line">			transCache.byte[<span class="number">0</span>] = imuData.accel_z_L;   transCache.byte[<span class="number">1</span>] = imuData.accel_z_H;</span><br><span class="line">			accelAxisSum[<span class="number">2</span>] += transCache.getSign;</span><br><span class="line">			</span><br><span class="line">			sumNum ++;</span><br><span class="line">			<span class="keyword">if</span> (sumNum &gt;= <span class="number">512</span>)</span><br><span class="line">			&#123;</span><br><span class="line">				icm426xx_getAverageOffset(Offset6Axis);	<span class="comment">// 求解偏置</span></span><br><span class="line">				icm426xx_load6AxisOffset(Offset6Axis);	<span class="comment">// 加载偏置</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span>&#123;</span><br><span class="line">			icm426xx_trans_RawDataToStandardData(&amp;imuData, &amp;imu);	<span class="comment">// 解析为标准单位</span></span><br><span class="line"><span class="comment">//			print_IMU_data(&amp;imu);</span></span><br><span class="line">			</span><br><span class="line">			<span class="comment">// Mahony滤波器</span></span><br><span class="line">			MahonyFilter_6Axis(imu.quaternion_body2Earth,</span><br><span class="line">			                   imu.gyro_x, imu.gyro_y, imu.gyro_z,</span><br><span class="line">			                   imu.accel_x, imu.accel_y, imu.accel_z);</span><br><span class="line">			trans_quaternionToEulerAngle(&amp;imu);	<span class="comment">// 把四元数转为欧拉角</span></span><br><span class="line">			</span><br><span class="line">			<span class="comment">// 打印数据</span></span><br><span class="line">			print_AHRS_data(&amp;imu);</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		<span class="meta">#<span class="keyword">ifdef</span> _RAWSIGNAL_ANALYSIS_ICM426XX_</span></span><br><span class="line">		<span class="comment">/*记录数据*/</span></span><br><span class="line">		<span class="comment">// 注意：测量时应该把设备放在水平、静止的台上</span></span><br><span class="line">		<span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">if</span>(regVal_int_status &amp; BIT_INT_STATUS_RESET_DONE)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">/* 复位完成 */</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span>(regVal_int_status &amp; BIT_INT_STATUS_PLL_RDY)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">/* PLL准备完成 */</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span>(regVal_int_status &amp; BIT_INT_STATUS_AGC_RDY)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">/* AGC控制器准备完成 */</span></span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://hal.archives-ouvertes.fr/hal-00488376/document">Mahony滤波算法原论文</a></li>
+<li><a target="_blank" rel="noopener" href="https://ahrs.readthedocs.io/en/latest/index.html">AHRS项目</a>：一个包含了常用定位、姿态算法的Python开源工具包</li>
+<li>全权.多旋翼飞行器设计与控制[M]，电子工业出版社，2018</li>
+</ul>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          Donate
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://blog.goryj.com/2022/07/28/ICM42688P-DrvBySPI/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IMU/" rel="tag">IMU</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Mahony-Filter/" rel="tag">Mahony Filter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SPI/" rel="tag">SPI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/STM32H7/" rel="tag">STM32H7</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/08/28/ElectricCompass-FromZeroToInf/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            电子罗盘的理论分析与实际应用（AK09915）
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/02/05/airplane-Model/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">固定翼飞行器动力学分析</div>
+      </a>
+    
+  </nav>
+
+  
+   
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/gitalk/1.7.2/gitalk.min.css">
+
+
+<script src="https://cdn.staticfile.org/gitalk/1.7.2/gitalk.min.js"></script>
+
+
+<script src="https://cdn.staticfile.org/blueimp-md5/2.19.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'Ov23lidsgAD0uGxie48H',
+    clientSecret: '565e4a5f8165ebf867cf18ca6a2d2f5af166e872',
+    repo: 'goryJ.github.io',
+    owner: 'goryJ',
+    admin: ['goryJ'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2024
+        <i class="ri-heart-fill heart_icon"></i> 江榕煜
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/logo/ficus_logo.jpg" alt="Gory&#39;s Blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/photos">旅行</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutGory">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>感谢股东支持！</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/logo/d23be1073bca56cb03df72bf5be1d0c.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/logo/666fc381aa93059dda537894ebf162d.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+ 
+<script src="/js/clickBoom2.js"></script>
+ 
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

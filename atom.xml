@@ -6,7 +6,7 @@
   <link href="http://blog.goryj.com/atom.xml" rel="self"/>
   
   <link href="http://blog.goryj.com/"/>
-  <updated>2024-11-08T20:28:59.995Z</updated>
+  <updated>2024-08-20T14:43:54.736Z</updated>
   <id>http://blog.goryj.com/</id>
   
   <author>
@@ -17,24 +17,420 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>Hello World</title>
-    <link href="http://blog.goryj.com/2024/11/08/hello-world/"/>
-    <id>http://blog.goryj.com/2024/11/08/hello-world/</id>
-    <published>2024-11-08T15:26:33.368Z</published>
-    <updated>2024-11-08T20:28:59.995Z</updated>
+    <title>基于FIR的高效插值器</title>
+    <link href="http://blog.goryj.com/2024/08/20/FIR4Interpolator/"/>
+    <id>http://blog.goryj.com/2024/08/20/FIR4Interpolator/</id>
+    <published>2024-08-20T03:51:52.000Z</published>
+    <updated>2024-08-20T14:43:54.736Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;p&gt;小刘肯定是第一个看到的！&lt;/p&gt;
-</summary>
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;在超声相控接收系统中，需要对采样的超声信号做超分辨率处理。考虑超声回波信号具有明显的窄带特性，就可以使用DSP课堂中的插0滤波法，选FIR的原因是可具有线性相移并且更加稳定。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2</summary>
         
       
     
     
     
+    
+  </entry>
+  
+  <entry>
+    <title>LVDS接收数据流（这一篇就够了）</title>
+    <link href="http://blog.goryj.com/2024/06/13/lvdsRecv/"/>
+    <id>http://blog.goryj.com/2024/06/13/lvdsRecv/</id>
+    <published>2024-06-13T05:55:06.000Z</published>
+    <updated>2024-08-13T10:03:39.942Z</updated>
+    
+    
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;本文将以驱动AFE5832高速模拟前端为开发目标，依次分析设计需求、方案原理、在Zynq Ultrascale+上的Verilog实现，最后扩展分享更通用、更有鲁棒性的LVDS Receiver。注：本文针对具有Verilog语言基础和FPGA基础概念的用户。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;接口设计需求简析&quot;&gt;&lt;a href=&quot;#接口设计需求简析&quot; class=&quot;headerlink&quot; title=&quot;接口设计需求简析&quot;&gt;&lt;/a&gt;接口设计需求简析&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;https://www.ti.com.cn/product/cn/AFE5832&quot;&gt;AFE5832&lt;/a&gt;是TI公司的一款适用于超声应用的模拟前端芯片，内含从LNA、LPF、到ADC的完整信号链和其他超声需要的辅助模块。采样方面，总共有32路输入，16个ADC，每个ADC支持12bit@40MSPS或者10bit@50MSPS采样，每个ADC的结果分别用一个LVDS的Lane串行输出。配置方面使用SPI接口，可以直接用AXI-SPI的IP核控制，不作介绍，所以接下来的篇幅将开始集中在LVDS方面。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;NOTE：笔者使用ZYNQ的PS的SPI，发现有BUG，只能EMIO出信号，MIO一样的代码不行&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/202406/202406_LVDS_1.png&quot; alt=&quot;AFE5832&quot;&gt;&lt;/p&gt;
+&lt;p&gt;AFE5832的LVDS数据输出接口如下图，有16对Data Lane（&lt;strong&gt;DOUT&lt;/strong&gt;），和1对串行数据时钟Serial Data CLK Lane（&lt;strong&gt;DCLK&lt;/strong&gt;），以及1对用来划分数据帧的Frame CLK Lane（&lt;strong&gt;FCLK&lt;/strong&gt;）。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="嵌入式驱动" scheme="http://blog.goryj.com/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/"/>
+    
+    
+    <category term="FPGA" scheme="http://blog.goryj.com/tags/FPGA/"/>
+    
+    <category term="LVDS" scheme="http://blog.goryj.com/tags/LVDS/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>速通材料力学</title>
+    <link href="http://blog.goryj.com/2023/09/01/mechanicofmaterial/"/>
+    <id>http://blog.goryj.com/2023/09/01/mechanicofmaterial/</id>
+    <published>2023-09-01T15:26:33.000Z</published>
+    <updated>2023-09-07T07:27:30.649Z</updated>
+    
+    
+    <summary type="html">&lt;h2 id=&quot;基本概念和术语&quot;&gt;&lt;a href=&quot;#基本概念和术语&quot; class=&quot;headerlink&quot; title=&quot;基本概念和术语&quot;&gt;&lt;/a&gt;基本概念和术语&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;构件&amp;#x2F;零件：组成机械与结构的各组成部分&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;保证构件正常或安全工作的条件：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;强度（在外力作用下抵抗塑性变形和断裂的能力），对应应力，单位Pa&lt;br&gt;对应的实验测试方法&lt;ul&gt;
+&lt;li&gt;拉伸实验——拉伸强度、屈服强度、抗拉强度（tensile strength）&lt;/li&gt;
+&lt;li&gt;三点弯曲实验——抗弯强度（Shear strength）&lt;/li&gt;
+&lt;li&gt;压缩实验——抗压强度（compression strength）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;刚度（Stiffness）（受力时抵抗弹性变形的能力），对应应变&lt;/li&gt;
+&lt;li&gt;硬度（金属材料抵抗更硬的物体压入其内的能力），属于表面特征。硬度定义方式包括：&lt;ul&gt;
+&lt;li&gt;刻划硬度（Scratch hardness）&lt;/li&gt;
+&lt;li&gt;压入硬度（Indentation hardness）&lt;/li&gt;
+&lt;li&gt;回弹硬度（Rebound hardness，动态硬度dynamic hardness，或绝对硬度）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;连续性假设：材料无空隙地充满整个构件&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;均匀性假设：构件内每一处的力学性能都相同&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;各向同性假设：构件某一处材料沿各个方向的力学性能相同。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;各向异性假设：各个方向的力学性能不同。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;内力：构件内部各&lt;strong&gt;部分之间&lt;/strong&gt;因受力后变形而引起的相互作用力&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;应力的积分，可以算内力&lt;/li&gt;
+&lt;li&gt;内力的分类：轴力，剪力，扭矩，弯矩&lt;/li&gt;
+&lt;li&gt;单位：N&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;应力：单个点的力特征，单位是Pa&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;变形：构件尺寸与形状的变化称为变形。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;弹性变形：外力解除后能消失的变形&lt;/li&gt;
+&lt;li&gt;塑性变形&amp;#x2F;残余变形：外力解除后不能消失的变形&lt;blockquote&gt;
+&lt;p&gt;在材料力学里，所有材料都会变形&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;应变&lt;/strong&gt;：变形的程度，无量纲&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;线应变&lt;br&gt;$$&lt;br&gt;&#92;epsilon &amp;#x3D; &#92;Delta L &amp;#x2F; L&lt;br&gt;$$&lt;/li&gt;
+&lt;li&gt;切应变&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;材料的应力-应变曲线&lt;br&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/20230902/20230902_MecOfMat_1.jpg&quot; alt=&quot;低碳钢应变应力&quot;&gt;&lt;/p&gt;
+&lt;p&gt;如上图是低碳钢拉伸时的应力应变曲线。可以分为四个阶段：&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="器件制造" scheme="http://blog.goryj.com/categories/%E5%99%A8%E4%BB%B6%E5%88%B6%E9%80%A0/"/>
+    
+    
+    <category term="材料" scheme="http://blog.goryj.com/tags/%E6%9D%90%E6%96%99/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>速通Linux驱动程序</title>
+    <link href="http://blog.goryj.com/2023/02/22/LinuxDriver/"/>
+    <id>http://blog.goryj.com/2023/02/22/LinuxDriver/</id>
+    <published>2023-02-22T11:55:32.000Z</published>
+    <updated>2023-03-22T10:55:17.807Z</updated>
+    
+    
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;痛苦，非常的痛苦！学Linux的驱动要么上天要么入土，因此笔者决定写这篇博客帮所有想入门Linux驱动的读者走地更安详。😇另外的，笔者在学习时具有一定程度的硬件知识储备和嵌入式裸机开发经验，因此本文将不会太多地帮助硬件小白，建议阅读学习笔者之前的硬件相关博客或其他大神的入门教程。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;Linux设备驱动概念篇&quot;&gt;&lt;a href=&quot;#Linux设备驱动概念篇&quot; class=&quot;headerlink&quot; title=&quot;Linux设备驱动概念篇&quot;&gt;&lt;/a&gt;Linux设备驱动概念篇&lt;/h2&gt;&lt;h3 id=&quot;驱动类型&quot;&gt;&lt;a href=&quot;#驱动类型&quot; class=&quot;headerlink&quot; title=&quot;驱动类型&quot;&gt;&lt;/a&gt;驱动类型&lt;/h3&gt;&lt;p&gt;Linux天下无敌，支持所有的硬件外设，所以提出了3个类别的驱动程序。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th align=&quot;center&quot;&gt;驱动类型&lt;/th&gt;
+&lt;th align=&quot;center&quot;&gt;特点&lt;/th&gt;
+&lt;th align=&quot;center&quot;&gt;常见设备&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;&lt;tr&gt;
+&lt;td align=&quot;center&quot;&gt;字符设备&lt;/td&gt;
+&lt;td align=&quot;center&quot;&gt;操作字节数据&lt;/td&gt;
+&lt;td align=&quot;center&quot;&gt;GPIO、I2C、SPI、音频、显卡&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&quot;center&quot;&gt;块设备&lt;/td&gt;
+&lt;td align=&quot;center&quot;&gt;一次操作一组（块）数据&lt;/td&gt;
+&lt;td align=&quot;center&quot;&gt;EMMC、NAND、SD Card&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&quot;center&quot;&gt;网络设备&lt;/td&gt;
+&lt;td align=&quot;center&quot;&gt;套接字（socket）操作&lt;/td&gt;
+&lt;td align=&quot;center&quot;&gt;以太网&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;p&gt;字符设备常常被创建为设备节点，以类似文件的形式存在于&lt;code&gt;/dev/&lt;/code&gt;目录下（例如串口&lt;code&gt;/dev/tty&lt;/code&gt;），这种形式操作起来和对普通文件的操作极其相似，同时字符设备类驱动是最常见的，做项目时写的最多的，但是3种驱动里最简单的。&lt;br&gt;另外两种驱动，块设备和网络设备，驱动模型写起来又臭又长，一般IC器件的厂家都把驱动写好了，属于Linux高手的玩物。&lt;/p&gt;
+&lt;p&gt;因此，本文中将主要分享字符设备驱动的开发。&lt;/p&gt;
+&lt;h3 id=&quot;内核态&quot;&gt;&lt;a href=&quot;#内核态&quot; class=&quot;headerlink&quot; title=&quot;内核态&quot;&gt;&lt;/a&gt;内核态&lt;/h3&gt;&lt;p&gt;Linux在隔离业务应用和硬件这块做的非常好，操作系统上分为了：&lt;strong&gt;用户态&lt;/strong&gt;和&lt;strong&gt;内核态&lt;/strong&gt;。内核态提供服务给用户态调用，具有统一的抽象接口，使得用户态程序可以在不了解硬件的情况下很好地运行并操作所需硬件。显然，我们要编写的驱动程序就是工作在内核态，所以编写时要满足Linux的模型。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/20230222/20230222-Linux-1.jpeg&quot; alt=&quot;用户态与内核态&quot;&gt;&lt;/p&gt;
+&lt;h3 id=&quot;驱动程序运行方式&quot;&gt;&lt;a href=&quot;#驱动程序运行方式&quot; class=&quot;headerlink&quot; title=&quot;驱动程序运行方式&quot;&gt;&lt;/a&gt;驱动程序运行方式&lt;/h3&gt;</summary>
+    
+    
+    
+    <category term="嵌入式驱动" scheme="http://blog.goryj.com/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/"/>
+    
+    
+    <category term="Linux" scheme="http://blog.goryj.com/tags/Linux/"/>
+    
+    <category term="驱动程序" scheme="http://blog.goryj.com/tags/%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>电子罗盘的理论分析与实际应用（AK09915）</title>
+    <link href="http://blog.goryj.com/2022/08/28/ElectricCompass-FromZeroToInf/"/>
+    <id>http://blog.goryj.com/2022/08/28/ElectricCompass-FromZeroToInf/</id>
+    <published>2022-08-28T03:01:53.000Z</published>
+    <updated>2022-09-06T11:37:09.655Z</updated>
+    
+    
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;前言：继上篇6轴IMU之后，本文将介绍电子罗盘的原理（数学模型）和以&lt;code&gt;AK09915&lt;/code&gt;为目标的应用实例。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;磁基础知识&quot;&gt;&lt;a href=&quot;#磁基础知识&quot; class=&quot;headerlink&quot; title=&quot;磁基础知识&quot;&gt;&lt;/a&gt;磁基础知识&lt;/h2&gt;&lt;h3 id=&quot;磁的分类&quot;&gt;&lt;a href=&quot;#磁的分类&quot; class=&quot;headerlink&quot; title=&quot;磁的分类&quot;&gt;&lt;/a&gt;磁的分类&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;硬磁：也就是永磁性材料。因为这种材料的矫顽力高&amp;#x2F;磁滞回线面基大，所以在被&lt;em&gt;磁化后将很难退磁&lt;/em&gt;。&lt;/li&gt;
+&lt;li&gt;软磁：普通的纯铁就是很好的例子，可以被磁铁吸住（纯铁被磁化），但是把磁铁拿掉后，很快将不表现出磁性（退磁）。这种材料的矫顽力小&amp;#x2F;磁滞回线面基小，所以被&lt;em&gt;磁化后将快速退磁&lt;/em&gt;；这种材料一般使用的目的就是&lt;strong&gt;增加磁导率&lt;/strong&gt;，比如做成电感的磁芯可以加大电感量（$L&amp;#x3D;&#92;mu&#92;cdot S_{磁芯} &#92;cdot N^2&amp;#x2F;l_{磁路}$）而又不带来大损耗。&lt;br&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/20220828/20220828-electCompass-1.png&quot; alt=&quot;硬磁与软磁&quot;&gt;&lt;/li&gt;
+&lt;li&gt;地磁：地球产生的磁场，可以理解地球为永磁体，这里我们并不关注地球的磁性从何而来，只关心地磁场的模型（如下图）。NOTE：在地表测量地磁的磁感应强度范围约是0.4~0.6高斯，地磁场的大磁极轴与地球自转轴有一个约11.5°夹角。&lt;br&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/20220828/20220828-electCompass-2.gif&quot; alt=&quot;地磁场&quot;&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;磁物理量&quot;&gt;&lt;a href=&quot;#磁物理量&quot; class=&quot;headerlink&quot; title=&quot;磁物理量&quot;&gt;&lt;/a&gt;磁物理量&lt;/h3&gt;&lt;p&gt;首先是常见的磁感应强度$B$，磁场强度$H$，表征磁介质磁性能力的磁导率$&#92;mu&amp;#x3D;B&amp;#x2F;H$。磁感应强度$B$的单位有国际标准单位“特斯拉”(&lt;strong&gt;T&lt;/strong&gt;)，也有常听到的“高斯”(&lt;strong&gt;G&lt;/strong&gt;)，这两个量的关系为：$1T&amp;#x3D;10^4G$。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="传感器" scheme="http://blog.goryj.com/categories/%E4%BC%A0%E6%84%9F%E5%99%A8/"/>
+    
+    
+    <category term="电子罗盘" scheme="http://blog.goryj.com/tags/%E7%94%B5%E5%AD%90%E7%BD%97%E7%9B%98/"/>
+    
+    <category term="IIC" scheme="http://blog.goryj.com/tags/IIC/"/>
+    
+    <category term="椭球拟合" scheme="http://blog.goryj.com/tags/%E6%A4%AD%E7%90%83%E6%8B%9F%E5%90%88/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>六轴传感器（ICM42688）驱动及姿态估计</title>
+    <link href="http://blog.goryj.com/2022/07/28/ICM42688P-DrvBySPI/"/>
+    <id>http://blog.goryj.com/2022/07/28/ICM42688P-DrvBySPI/</id>
+    <published>2022-07-28T12:07:57.000Z</published>
+    <updated>2022-08-26T09:25:32.080Z</updated>
+    
+    
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;前言：打算给小巡洋舰搞点花活，顺便做个飞控，记录一下其中最为关键的惯性导航（IMU）。本次项目中使用的是TDK出的最新MEMS传感器以提高项目的生命周期，因此本文将先简单介绍ICM42688这个片子，接着探讨SPI驱动方法，最后记录六轴MEMS传感器的工作原理。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;ICM42688简介&quot;&gt;&lt;a href=&quot;#ICM42688简介&quot; class=&quot;headerlink&quot; title=&quot;ICM42688简介&quot;&gt;&lt;/a&gt;ICM42688简介&lt;/h2&gt;&lt;p&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/20220728/20220728-ICM42688SPI-1.png&quot; alt=&quot;ICM42688芯片&quot;&gt;&lt;/p&gt;
+&lt;p&gt;这款6轴MEMS运动跟踪传感器内有一个三轴陀螺仪和一个三轴加速度计，通信方面支持I3C接口、常规的IIC、SPI通信和2kB的FIFO，并且按照TDK的老传统这个片子里也是带数字处理单元的。这个片子目前算是消费电子里的顶流了，参数如下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;陀螺仪噪声密度：$0.0028°&amp;#x2F;s&amp;#x2F;&#92;sqrt{Hz}$&lt;/li&gt;
+&lt;li&gt;加速度计噪声密度：$70&#92;mu g&amp;#x2F;&#92;sqrt{Hz}$&lt;/li&gt;
+&lt;li&gt;8档陀螺仪量程：$&#92;pm15.6 &#92;sim 2000dps$&lt;/li&gt;
+&lt;li&gt;4档加速度计量程：2&amp;#x2F;4&amp;#x2F;8&amp;#x2F;16g&lt;/li&gt;
+&lt;li&gt;前端ADC精度：16bits&lt;/li&gt;
+&lt;li&gt;SPI通信速率达24MHz&lt;/li&gt;
+&lt;li&gt;最后，温漂参数也是非常不错：&lt;ul&gt;
+&lt;li&gt;陀螺仪SSF-Temp为$&#92;pm 0.005 % &amp;#x2F;° C$，ZRO-Temp为$&#92;pm 0.005 °&amp;#x2F;s&amp;#x2F;° C$&lt;/li&gt;
+&lt;li&gt;加速度计SSF-Temp为$&#92;pm 0.005 % &amp;#x2F;°C$，ZGO-Temp为$&#92;pm 0.15 mg&amp;#x2F;° C$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;至于内置的APEX数字运动处理器也是非常优秀了，可以说是针对消费电子设计的，支持检测拿起、记录步数、倾斜测试等。这些功能在机器人应用上虽然犹如鸡肋，但是应该可以做一些花活。&lt;/p&gt;
+&lt;h2 id=&quot;SPI总线&quot;&gt;&lt;a href=&quot;#SPI总线&quot; class=&quot;headerlink&quot; title=&quot;SPI总线&quot;&gt;&lt;/a&gt;SPI总线&lt;/h2&gt;</summary>
+    
+    
+    
+    <category term="传感器" scheme="http://blog.goryj.com/categories/%E4%BC%A0%E6%84%9F%E5%99%A8/"/>
+    
+    
+    <category term="SPI" scheme="http://blog.goryj.com/tags/SPI/"/>
+    
+    <category term="IMU" scheme="http://blog.goryj.com/tags/IMU/"/>
+    
+    <category term="STM32H7" scheme="http://blog.goryj.com/tags/STM32H7/"/>
+    
+    <category term="Mahony Filter" scheme="http://blog.goryj.com/tags/Mahony-Filter/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>固定翼飞行器动力学分析</title>
+    <link href="http://blog.goryj.com/2022/02/05/airplane-Model/"/>
+    <id>http://blog.goryj.com/2022/02/05/airplane-Model/</id>
+    <published>2022-02-05T10:04:16.000Z</published>
+    <updated>2022-04-09T16:18:23.079Z</updated>
+    
+    
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;前言：固定翼飞行器相对多旋翼飞行器具有载荷大、航程远等特性，在B端、C端、M端皆占大半江山。此次新年之际，笔者亲手搭建了一台性价比较高的“冲浪者”，并且尝试一下午就成功使用日本手首飞成功，有些玩航模的朋友夸俺天赋好😆但这其实离不开笔者在上手之前学习的固定翼相关空气动力学，所以个人认为很有必要记录一下，以便日后其他小伙伴借鉴快速入门&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;本次飞行视频已上次至&lt;strong&gt;BiliBili&lt;/strong&gt;视频平台，欢迎点击&lt;a href=&quot;https://www.bilibili.com/video/BV1rS4y1y7YG/&quot;&gt;传送门&lt;/a&gt;观看&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;机翼的空气动力特性&quot;&gt;&lt;a href=&quot;#机翼的空气动力特性&quot; class=&quot;headerlink&quot; title=&quot;机翼的空气动力特性&quot;&gt;&lt;/a&gt;机翼的空气动力特性&lt;/h2&gt;&lt;p&gt;为了方便分析，一般取机翼的切面形状进行空气动力学计算，即翼型。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-1.png&quot; alt=&quot;翼型概念&quot;&gt;&lt;/p&gt;
+&lt;p&gt;下图为几种常见的翼型，在不同用途的飞行器上有着各自的优势，具体我们留到下方&lt;strong&gt;常见翼型特性&lt;/strong&gt;一节讲解分析。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-2.png&quot; alt=&quot;各种翼型&quot;&gt;&lt;/p&gt;
+&lt;p&gt;笔者玩的&lt;em&gt;&lt;strong&gt;冲浪者&lt;/strong&gt;&lt;/em&gt;主机翼显然采用的是超临界型翼型设计，下图展示的为将机翼拆下后翅根处的截面。（都这么努力了😁是不是要扫描文末的二维码请咖啡呀☕）&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-3.jpg&quot; alt=&quot;冲浪者翼型&quot;&gt;&lt;/p&gt;
+&lt;p&gt;接下来，对翼型进行理论分析，介绍各项重要参数以及升力计算方法。图中，贯穿中央的水平&lt;strong&gt;实&lt;/strong&gt;直线名为&lt;code&gt;展弦&lt;/code&gt;；还有一根从前缘到后缘，贯穿内切圆圆心的&lt;strong&gt;虚&lt;/strong&gt;线名为&lt;code&gt;中弧线&lt;/code&gt;；翼型的上包实线名为&lt;code&gt;上弧线&lt;/code&gt;；翼型的下包实线名为&lt;code&gt;下弧线&lt;/code&gt;；其他关键机械设计参数皆标于图上。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="动力学系统" scheme="http://blog.goryj.com/categories/%E5%8A%A8%E5%8A%9B%E5%AD%A6%E7%B3%BB%E7%BB%9F/"/>
+    
+    
+    <category term="动力学分析" scheme="http://blog.goryj.com/tags/%E5%8A%A8%E5%8A%9B%E5%AD%A6%E5%88%86%E6%9E%90/"/>
+    
+    <category term="固定翼" scheme="http://blog.goryj.com/tags/%E5%9B%BA%E5%AE%9A%E7%BF%BC/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>天线</title>
+    <link href="http://blog.goryj.com/2021/08/07/antenna/"/>
+    <id>http://blog.goryj.com/2021/08/07/antenna/</id>
+    <published>2021-08-07T09:29:20.000Z</published>
+    <updated>2022-08-16T12:43:03.618Z</updated>
+    
+    
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;前言：继上一篇&lt;a href=&quot;/2021/06/23/%E9%98%BB%E6%8A%97%E5%8C%B9%E9%85%8D%E5%92%8C%E6%9E%9D%E8%8A%82%E5%8C%B9%E9%85%8D/&quot;&gt;传输线阻抗匹配&lt;/a&gt;文章后，笔者又接了一个智能医疗项目（内容保密），用到一款集成蓝牙射频功能的MCU，需要做的就是设计一个PCB板载微带天线。由于需要自学通信天线设计，所以就顺手将学习内容记录下来以供有兴趣速成的朋友学习和后续查阅&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;天线的那些事&quot;&gt;&lt;a href=&quot;#天线的那些事&quot; class=&quot;headerlink&quot; title=&quot;天线的那些事&quot;&gt;&lt;/a&gt;天线的那些事&lt;/h2&gt;&lt;blockquote&gt;
+&lt;p&gt;要自学本文，需要先完全掌握（上一篇文章中的）微波传输线相关知识和基础的大学物理电磁学&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;天线理论的基础是对称振子（有磁基本振子和电基本振子两种），下图是天线的原理简图。可以大概观察到，天线的大小是和信号波长相当的&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-1.png&quot; alt=&quot;原理简图&quot;&gt;&lt;/p&gt;
+&lt;p&gt;目前人类正在使用的无线电波频率，下至Hz，上至百GHz不等。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="调谐&amp;滤波" scheme="http://blog.goryj.com/categories/%E8%B0%83%E8%B0%90-%E6%BB%A4%E6%B3%A2/"/>
+    
+    
+    <category term="天线" scheme="http://blog.goryj.com/tags/%E5%A4%A9%E7%BA%BF/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>阻抗匹配和枝节匹配器</title>
+    <link href="http://blog.goryj.com/2021/06/23/%E9%98%BB%E6%8A%97%E5%8C%B9%E9%85%8D%E5%92%8C%E6%9E%9D%E8%8A%82%E5%8C%B9%E9%85%8D/"/>
+    <id>http://blog.goryj.com/2021/06/23/%E9%98%BB%E6%8A%97%E5%8C%B9%E9%85%8D%E5%92%8C%E6%9E%9D%E8%8A%82%E5%8C%B9%E9%85%8D/</id>
+    <published>2021-06-23T09:03:06.000Z</published>
+    <updated>2022-04-09T16:18:23.402Z</updated>
+    
+    
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;前言：笔者这学期在课内学习了《微波技术》，本以为射频相关是永远不可能涉及的工作，直至前几日帮好兄弟解决了一个阻抗匹配的玄学通信案例，才意识到做硬件一定逃不开传输线的知识，以及阻抗匹配的重要性&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;匹配实战案例&quot;&gt;&lt;a href=&quot;#匹配实战案例&quot; class=&quot;headerlink&quot; title=&quot;匹配实战案例&quot;&gt;&lt;/a&gt;匹配实战案例&lt;/h2&gt;&lt;p&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/20210625/20210625-IM-1.jpg&quot; alt=&quot;开路同轴线匹配&quot;&gt;&lt;/p&gt;
+&lt;p&gt;事情的起因是这样的，前几天我的一个好兄弟联系说有一个机械臂的STM32主控板有点问题，其他功能都正常，但是不能使用&lt;code&gt;SW&lt;/code&gt;接口烧录调试只能用普通串口烧录代码。🤯“不会是假片子吧？”在片慌的2021年，这是笔者的第一感觉…&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;“一切玄学本质上都是无知”——王贞炎（HUST-STI）&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;拿到板子后，笔者用ST-LINK和CMSIS-DAP调试器分别试了一下，确实都识别不到芯片；看了一下Layout，板子上&lt;code&gt;SWCLK&lt;/code&gt;和&lt;code&gt;SWD&lt;/code&gt;没有做等长，所以怀疑是时钟对齐问题，把调试器的时钟降至最低的5kHz居然还是不行？！（建议读者记下这个常规调试方式）&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/20210625/20210625-IM-2.png&quot; alt=&quot;layout&quot;&gt;&lt;/p&gt;
+&lt;p&gt;这里不得不感谢一下华科电信院的微波考试的心理阴影，让笔者考完几天后还久久不能忘怀哈哈哈🐶我突然想到了阻抗匹配这个东西，怀疑有可能是阻抗匹配没做，实时证明也确实如此，如图中笔者使用了期末考的枝节匹配器&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/20210625/20210625-IM-3.png&quot; alt=&quot;支线匹配&quot;&gt;&lt;/p&gt;
+&lt;p&gt;DETAIL：在SWCLK引脚和地焊盘之间并联了一条终端开路的同轴传输线，单枝节匹配器理论上是只对一个频点（窄带）匹配，但是由于本例中总线时钟较低（5k~4M），所以获得了宽带匹配效果。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="调谐&amp;滤波" scheme="http://blog.goryj.com/categories/%E8%B0%83%E8%B0%90-%E6%BB%A4%E6%B3%A2/"/>
+    
+    
+    <category term="阻抗匹配" scheme="http://blog.goryj.com/tags/%E9%98%BB%E6%8A%97%E5%8C%B9%E9%85%8D/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Python开发图片压缩小工具</title>
+    <link href="http://blog.goryj.com/2021/02/14/photoCompressionPython/"/>
+    <id>http://blog.goryj.com/2021/02/14/photoCompressionPython/</id>
+    <published>2021-02-14T10:13:44.000Z</published>
+    <updated>2022-04-09T16:18:23.249Z</updated>
+    
+    
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;这个小工具非常简单，就是把图像以最小的损失量压缩。网络上的工具要么是要钱，要么一张张图片导入导出实在是太麻烦啦🙃笔者博客的图片全部都托管在gitee上，有1MB的大小限制，所以就搞个小工具来批量压缩图片啦大家有需要自取&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;图像存储原理&quot;&gt;&lt;a href=&quot;#图像存储原理&quot; class=&quot;headerlink&quot; title=&quot;图像存储原理&quot;&gt;&lt;/a&gt;图像存储原理&lt;/h2&gt;&lt;p&gt;首先区别两个知识点：图片格式&amp;amp;颜色模式&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;图片格式：文件存储的时候文件编码的数据结构，比如常见的.jpg和.png是两种图片存储格式&lt;/li&gt;
+&lt;li&gt;颜色模式：指的是颜色表示的方式，常见的有RGB和YUV&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;一般来说，咱们常见的.jpg图片，使用手机拍的、电脑截图的如果没有经过特殊转码处理，一般采用RGB颜色模式。&lt;/p&gt;
+&lt;p&gt;一张数字图片，可以理解为一个二维数组，每一个元素就是常说的像素点，每个像素点就是一个颜色方块，当这些方块非常非常小时，就组成了一张图片（微分思想）。我们知道使用三基色可以合成所有颜色，这也就是RGB颜色模式的由来。由红R+绿G+蓝B三个颜色分量合成一个像素点，目前一般采样RGB24也就是一个分量一个字节（1Byte&amp;#x3D;8bits），那么一个像素点就是3Bytes（24bits）。计算一张采用RGB24颜色模式的分辨率A×B的图片大小：&lt;/p&gt;
+&lt;p&gt;$$&lt;br&gt;&#92;text{Size} &amp;#x3D; A&#92;cdot B &#92;cdot 3Bytes&lt;br&gt;$$&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;当然还有更节省存储的RGB8和RGB16，也有色板精度更高的RGB32&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;图像压缩实例代码&quot;&gt;&lt;a href=&quot;#图像压缩实例代码&quot; class=&quot;headerlink&quot; title=&quot;图像压缩实例代码&quot;&gt;&lt;/a&gt;图像压缩实例代码&lt;/h2&gt;</summary>
+    
+    
+    
+    <category term="编程技能" scheme="http://blog.goryj.com/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E8%83%BD/"/>
+    
+    
+    <category term="Python" scheme="http://blog.goryj.com/tags/Python/"/>
+    
+    <category term="数字图像处理" scheme="http://blog.goryj.com/tags/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>LC振荡器</title>
+    <link href="http://blog.goryj.com/2020/12/13/LC-oscillator/"/>
+    <id>http://blog.goryj.com/2020/12/13/LC-oscillator/</id>
+    <published>2020-12-13T05:23:57.000Z</published>
+    <updated>2022-04-09T16:18:23.179Z</updated>
+    
+    
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;前言：虽然这是一篇课内的（老师说非常过时技术的）学习笔记，但是笔者认为把振荡器电路学好了，顺带把反馈、三极管、LC谐振器等概念都复习起来了&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;LC振荡器类型&quot;&gt;&lt;a href=&quot;#LC振荡器类型&quot; class=&quot;headerlink&quot; title=&quot;LC振荡器类型&quot;&gt;&lt;/a&gt;LC振荡器类型&lt;/h2&gt;&lt;p&gt;振荡器的组成基本都是3个部分：信号放大电路、选频（滤波）网络、反馈电路。使用LC选频的就是本文的LC振荡器，使用晶振选频的就是晶体振荡器。&lt;/p&gt;
+&lt;p&gt;对于LC振荡器，采用不同的反馈策略，就有了不同的电路结构以及带来的性能优缺，本文讨论的有：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;变压器（互感）耦合振荡器&lt;/li&gt;
+&lt;li&gt;电感反馈三端式振荡器&lt;/li&gt;
+&lt;li&gt;电容反馈三端式振荡器&lt;/li&gt;
+&lt;li&gt;串联型改进电容三端式&lt;/li&gt;
+&lt;li&gt;并联型改进电容三端式&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;由于采用的都是LC谐振选频，所以振荡器的频率都是谐振频率（注意进行相应的串并联等效）&lt;/p&gt;
+&lt;p&gt;$$&lt;br&gt;f_o &amp;#x3D; &#92;frac 1 {2&#92;pi} &#92;sqrt{&#92;frac{1}{LC}}&lt;br&gt;$$&lt;/p&gt;
+&lt;h2 id=&quot;变压器（互感）耦合振荡器&quot;&gt;&lt;a href=&quot;#变压器（互感）耦合振荡器&quot; class=&quot;headerlink&quot; title=&quot;变压器（互感）耦合振荡器&quot;&gt;&lt;/a&gt;变压器（互感）耦合振荡器&lt;/h2&gt;&lt;p&gt;由选频网络工作的位置不同，如下图可分为&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;调基电路&lt;/li&gt;
+&lt;li&gt;调发电路&lt;/li&gt;
+&lt;li&gt;调射电路&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/20201213/20201213-LC-1.png&quot; alt=&quot;互感耦合&quot;&gt;&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="硬件基础" scheme="http://blog.goryj.com/categories/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80/"/>
+    
+    
+    <category term="振荡器" scheme="http://blog.goryj.com/tags/%E6%8C%AF%E8%8D%A1%E5%99%A8/"/>
     
   </entry>
   
