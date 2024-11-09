@@ -111,16 +111,6 @@
 <div id="main">
   <section class="outer">
   
-  <ul class="ads">
-    
-        <li>
-            <a href="">
-                <img src="" width="300" alt="广告位招租">
-            </a>
-        </li>
-    
-</ul>
-  
   
   
 <div class="notice" style="margin-top:50px">
@@ -186,7 +176,7 @@
   <time datetime="2023-02-22T11:55:32.000Z" itemprop="datePublished">2023-02-22</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/">嵌入式驱动</a>
+    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F-%E6%8E%A7%E5%88%B6%E7%AE%97%E6%B3%95/">嵌入式&控制算法</a>
   </div>
    
     </div>
@@ -224,7 +214,7 @@
 <p>字符设备常常被创建为设备节点，以类似文件的形式存在于<code>/dev/</code>目录下（例如串口<code>/dev/tty</code>），这种形式操作起来和对普通文件的操作极其相似，同时字符设备类驱动是最常见的，做项目时写的最多的，但是3种驱动里最简单的。<br>另外两种驱动，块设备和网络设备，驱动模型写起来又臭又长，一般IC器件的厂家都把驱动写好了，属于Linux高手的玩物。</p>
 <p>因此，本文中将主要分享字符设备驱动的开发。</p>
 <h3 id="内核态"><a href="#内核态" class="headerlink" title="内核态"></a>内核态</h3><p>Linux在隔离业务应用和硬件这块做的非常好，操作系统上分为了：<strong>用户态</strong>和<strong>内核态</strong>。内核态提供服务给用户态调用，具有统一的抽象接口，使得用户态程序可以在不了解硬件的情况下很好地运行并操作所需硬件。显然，我们要编写的驱动程序就是工作在内核态，所以编写时要满足Linux的模型。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20230222/20230222-Linux-1.jpeg" alt="用户态与内核态"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20230222-Linux-1.jpeg" alt="用户态与内核态"></p>
 <h3 id="驱动程序运行方式"><a href="#驱动程序运行方式" class="headerlink" title="驱动程序运行方式"></a>驱动程序运行方式</h3> 
       <a class="article-more-link" href="/2023/02/22/LinuxDriver/"
         >阅读更多...</a
@@ -274,7 +264,7 @@
   <time datetime="2022-08-28T03:01:53.000Z" itemprop="datePublished">2022-08-28</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/%E4%BC%A0%E6%84%9F%E5%99%A8/">传感器</a>
+    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F-%E6%8E%A7%E5%88%B6%E7%AE%97%E6%B3%95/">嵌入式&控制算法</a>
   </div>
    
     </div>
@@ -286,8 +276,8 @@
 </blockquote>
 <h2 id="磁基础知识"><a href="#磁基础知识" class="headerlink" title="磁基础知识"></a>磁基础知识</h2><h3 id="磁的分类"><a href="#磁的分类" class="headerlink" title="磁的分类"></a>磁的分类</h3><ul>
 <li>硬磁：也就是永磁性材料。因为这种材料的矫顽力高&#x2F;磁滞回线面基大，所以在被<em>磁化后将很难退磁</em>。</li>
-<li>软磁：普通的纯铁就是很好的例子，可以被磁铁吸住（纯铁被磁化），但是把磁铁拿掉后，很快将不表现出磁性（退磁）。这种材料的矫顽力小&#x2F;磁滞回线面基小，所以被<em>磁化后将快速退磁</em>；这种材料一般使用的目的就是<strong>增加磁导率</strong>，比如做成电感的磁芯可以加大电感量（$L&#x3D;\mu\cdot S_{磁芯} \cdot N^2&#x2F;l_{磁路}$）而又不带来大损耗。<br><img src="http://imgjry.fangyikuan.xyz/20220828/20220828-electCompass-1.png" alt="硬磁与软磁"></li>
-<li>地磁：地球产生的磁场，可以理解地球为永磁体，这里我们并不关注地球的磁性从何而来，只关心地磁场的模型（如下图）。NOTE：在地表测量地磁的磁感应强度范围约是0.4~0.6高斯，地磁场的大磁极轴与地球自转轴有一个约11.5°夹角。<br><img src="http://imgjry.fangyikuan.xyz/20220828/20220828-electCompass-2.gif" alt="地磁场"></li>
+<li>软磁：普通的纯铁就是很好的例子，可以被磁铁吸住（纯铁被磁化），但是把磁铁拿掉后，很快将不表现出磁性（退磁）。这种材料的矫顽力小&#x2F;磁滞回线面基小，所以被<em>磁化后将快速退磁</em>；这种材料一般使用的目的就是<strong>增加磁导率</strong>，比如做成电感的磁芯可以加大电感量（$L&#x3D;\mu\cdot S_{磁芯} \cdot N^2&#x2F;l_{磁路}$）而又不带来大损耗。<br><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220828-electCompass-1.png" alt="硬磁与软磁"></li>
+<li>地磁：地球产生的磁场，可以理解地球为永磁体，这里我们并不关注地球的磁性从何而来，只关心地磁场的模型（如下图）。NOTE：在地表测量地磁的磁感应强度范围约是0.4~0.6高斯，地磁场的大磁极轴与地球自转轴有一个约11.5°夹角。<br><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220828-electCompass-2.gif" alt="地磁场"></li>
 </ul>
 <h3 id="磁物理量"><a href="#磁物理量" class="headerlink" title="磁物理量"></a>磁物理量</h3><p>首先是常见的磁感应强度$B$，磁场强度$H$，表征磁介质磁性能力的磁导率$\mu&#x3D;B&#x2F;H$。磁感应强度$B$的单位有国际标准单位“特斯拉”(<strong>T</strong>)，也有常听到的“高斯”(<strong>G</strong>)，这两个量的关系为：$1T&#x3D;10^4G$。</p> 
       <a class="article-more-link" href="/2022/08/28/ElectricCompass-FromZeroToInf/"
@@ -338,7 +328,7 @@
   <time datetime="2022-07-28T12:07:57.000Z" itemprop="datePublished">2022-07-28</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/%E4%BC%A0%E6%84%9F%E5%99%A8/">传感器</a>
+    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F-%E6%8E%A7%E5%88%B6%E7%AE%97%E6%B3%95/">嵌入式&控制算法</a>
   </div>
    
     </div>
@@ -348,7 +338,7 @@
   <blockquote>
 <p>前言：打算给小巡洋舰搞点花活，顺便做个飞控，记录一下其中最为关键的惯性导航（IMU）。本次项目中使用的是TDK出的最新MEMS传感器以提高项目的生命周期，因此本文将先简单介绍ICM42688这个片子，接着探讨SPI驱动方法，最后记录六轴MEMS传感器的工作原理。</p>
 </blockquote>
-<h2 id="ICM42688简介"><a href="#ICM42688简介" class="headerlink" title="ICM42688简介"></a>ICM42688简介</h2><p><img src="http://imgjry.fangyikuan.xyz/20220728/20220728-ICM42688SPI-1.png" alt="ICM42688芯片"></p>
+<h2 id="ICM42688简介"><a href="#ICM42688简介" class="headerlink" title="ICM42688简介"></a>ICM42688简介</h2><p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220728-ICM42688SPI-1.png" alt="ICM42688芯片"></p>
 <p>这款6轴MEMS运动跟踪传感器内有一个三轴陀螺仪和一个三轴加速度计，通信方面支持I3C接口、常规的IIC、SPI通信和2kB的FIFO，并且按照TDK的老传统这个片子里也是带数字处理单元的。这个片子目前算是消费电子里的顶流了，参数如下：</p>
 <ul>
 <li>陀螺仪噪声密度：$0.0028°&#x2F;s&#x2F;\sqrt{Hz}$</li>
