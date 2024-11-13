@@ -117,15 +117,15 @@
   <blockquote>
 <p>前言：笔者这学期在课内学习了《微波技术》，本以为射频相关是永远不可能涉及的工作，直至前几日帮好兄弟解决了一个阻抗匹配的玄学通信案例，才意识到做硬件一定逃不开传输线的知识，以及阻抗匹配的重要性</p>
 </blockquote>
-<h2 id="匹配实战案例"><a href="#匹配实战案例" class="headerlink" title="匹配实战案例"></a>匹配实战案例</h2><p><img src="http://imgjry.fangyikuan.xyz/20210625/20210625-IM-1.jpg" alt="开路同轴线匹配"></p>
+<h2 id="匹配实战案例"><a href="#匹配实战案例" class="headerlink" title="匹配实战案例"></a>匹配实战案例</h2><p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210625-IM-1.jpg" alt="开路同轴线匹配"></p>
 <p>事情的起因是这样的，前几天我的一个好兄弟联系说有一个机械臂的STM32主控板有点问题，其他功能都正常，但是不能使用<code>SW</code>接口烧录调试只能用普通串口烧录代码。🤯“不会是假片子吧？”在片慌的2021年，这是笔者的第一感觉…</p>
 <blockquote>
 <p>“一切玄学本质上都是无知”——王贞炎（HUST-STI）</p>
 </blockquote>
 <p>拿到板子后，笔者用ST-LINK和CMSIS-DAP调试器分别试了一下，确实都识别不到芯片；看了一下Layout，板子上<code>SWCLK</code>和<code>SWD</code>没有做等长，所以怀疑是时钟对齐问题，把调试器的时钟降至最低的5kHz居然还是不行？！（建议读者记下这个常规调试方式）</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210625/20210625-IM-2.png" alt="layout"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210625-IM-2.png" alt="layout"></p>
 <p>这里不得不感谢一下华科电信院的微波考试的心理阴影，让笔者考完几天后还久久不能忘怀哈哈哈🐶我突然想到了阻抗匹配这个东西，怀疑有可能是阻抗匹配没做，实时证明也确实如此，如图中笔者使用了期末考的枝节匹配器</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210625/20210625-IM-3.png" alt="支线匹配"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210625-IM-3.png" alt="支线匹配"></p>
 <p>DETAIL：在SWCLK引脚和地焊盘之间并联了一条终端开路的同轴传输线，单枝节匹配器理论上是只对一个频点（窄带）匹配，但是由于本例中总线时钟较低（5k~4M），所以获得了宽带匹配效果。</p>
 <span id="more"></span>
 
@@ -136,9 +136,9 @@
 <li>枝节匹配器</li>
 </ol>
 <p>并且在文末将会给出重要公式汇总，如果读者们不喜欢推导可以直接快进</p>
-<h2 id="真正的传输线"><a href="#真正的传输线" class="headerlink" title="真正的传输线"></a>真正的传输线</h2><h3 id="传输线方程及解"><a href="#传输线方程及解" class="headerlink" title="传输线方程及解"></a>传输线方程及解</h3><p><img src="http://imgjry.fangyikuan.xyz/20210625/20210625-IM-4.png" alt="普通传输线"></p>
+<h2 id="真正的传输线"><a href="#真正的传输线" class="headerlink" title="真正的传输线"></a>真正的传输线</h2><h3 id="传输线方程及解"><a href="#传输线方程及解" class="headerlink" title="传输线方程及解"></a>传输线方程及解</h3><p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210625-IM-4.png" alt="普通传输线"></p>
 <p>上图是你以为的传输线，Right？但实际上的传输线是由无数段如下结构所示的分布参数微元电路组成的，但是平时我们电路频率低长度短所以不考虑分布参数也可以正常使用。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210625/20210625-IM-5.jpg" alt="分布参数电路"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210625-IM-5.jpg" alt="分布参数电路"></p>
 <blockquote>
 <p>当信号的波长可以和电路尺寸相比拟时就要使用分布参数电路，所以这个知识在电网和高频中使用最多。举例：我们一般100k数量级频率信号，电磁波长在3000m数量级，比我们常规电路板（再大大不过10m）大很多，可以不考虑；但是1G频率的电路，电磁波长在0.3m数量级，这时候就必须要使用分布参数电路了</p>
 </blockquote>
@@ -249,7 +249,7 @@
 <p>所以，如果我们在负载和传输线之间加入一段匹配线长度四分之波长特征阻抗为：</p>
 <p>$$<br>Z &#x3D; \sqrt{Z_0Z_L}<br>$$</p>
 <p>则即可使得整个系统获得阻抗匹配。</p>
-<h2 id="枝节匹配器"><a href="#枝节匹配器" class="headerlink" title="枝节匹配器"></a>枝节匹配器</h2><p><img src="http://imgjry.fangyikuan.xyz/20210625/20210625-IM-6.png" alt="枝节匹配"></p>
+<h2 id="枝节匹配器"><a href="#枝节匹配器" class="headerlink" title="枝节匹配器"></a>枝节匹配器</h2><p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210625-IM-6.png" alt="枝节匹配"></p>
 <p>枝节匹配器的结构如上图所示，就是在传输线上的某个位置并联一段终端开路（短路也行）的传输线，来调节系统匹配。</p>
 <blockquote>
 <p>接下来的分析是笔者的个人推导结果，后续有空再写写教科书上的“史密斯”圆图法</p>

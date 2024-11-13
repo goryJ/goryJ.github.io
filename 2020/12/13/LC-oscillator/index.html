@@ -134,7 +134,7 @@
 <li>调发电路</li>
 <li>调射电路</li>
 </ul>
-<p><img src="http://imgjry.fangyikuan.xyz/20201213/20201213-LC-1.png" alt="互感耦合"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20201213-LC-1.png" alt="互感耦合"></p>
 <span id="more"></span>
 
 <p>耦合时的同名端决定了正反馈（相位）是否成立，而互感量M决定了反馈量的大小。由选频网络易得</p>
@@ -144,7 +144,7 @@
 <blockquote>
 <p>由于变压器在绕制的时候，线圈匝间存在分布电容，且不好控制量值，所以不适用于高频场合</p>
 </blockquote>
-<h2 id="三端式反馈振荡器"><a href="#三端式反馈振荡器" class="headerlink" title="三端式反馈振荡器"></a>三端式反馈振荡器</h2><p><img src="http://imgjry.fangyikuan.xyz/20201213/20201213-LC-5.png" alt="三端式原理"></p>
+<h2 id="三端式反馈振荡器"><a href="#三端式反馈振荡器" class="headerlink" title="三端式反馈振荡器"></a>三端式反馈振荡器</h2><p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20201213-LC-5.png" alt="三端式原理"></p>
 <p>忽略三极管的IO阻抗，依据谐振理论可知电路要振荡需要满足条件</p>
 <p>$$<br>x_{be}+ x_{ce}+ x_{cb} &#x3D;0<br>$$</p>
 <p>并且由上图可知</p>
@@ -156,20 +156,20 @@
 <h3 id="电感反馈三端式振荡器"><a href="#电感反馈三端式振荡器" class="headerlink" title="电感反馈三端式振荡器"></a>电感反馈三端式振荡器</h3><blockquote>
 <p>Hartley</p>
 </blockquote>
-<p><img src="http://imgjry.fangyikuan.xyz/20201213/20201213-LC-2.png" alt="电感反馈"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20201213-LC-2.png" alt="电感反馈"></p>
 <p>上图中左图为完整振荡电路，右图进行了交流等效，可见满足上面讨论的三端谐振条件。重要元件说明：</p>
 <p>$$<br>反馈电容兼隔直电容C_b<br>\\<br>高频旁路电容C_e<br>\\<br>放大器工作点偏置电阻R_{b1}和R_{b2}<br>$$</p>
 <p>电路的起振条件为</p>
 <p>$$<br>h_{fe} \gt \frac{h_{ie}}{FR_P’} &#x3D; \frac{h_{ie}}{R_P’} \cdot \frac{L_1 + M}{L_2 + M} \gt \frac{h_{ie}}{h_{fe}R_p’}<br>\\<br>负载回路谐振电阻R_p’<br>\\<br>反馈系数F<br>$$</p>
 <p>作如下所示的等效谐振回路图可知，若F大，则接入系数增大，晶体管输入阻抗折合到谐振等效回路中的阻抗减少，使得Q值减少，也就是谐振电阻减少。那么从起振条件可知，要求的电流增益需求变大了，使得电路难以起振</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20201213/20201213-LC-3.png" alt="电感反馈等效"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20201213-LC-3.png" alt="电感反馈等效"></p>
 <blockquote>
 <p>因为采用的是电感作反馈，所以高频谐波的反馈较强，波形失真大</p>
 </blockquote>
 <h3 id="电容反馈三端式振荡器"><a href="#电容反馈三端式振荡器" class="headerlink" title="电容反馈三端式振荡器"></a>电容反馈三端式振荡器</h3><blockquote>
 <p>Coplitts</p>
 </blockquote>
-<p><img src="http://imgjry.fangyikuan.xyz/20201213/20201213-LC-4.png" alt="电容反馈"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20201213-LC-4.png" alt="电容反馈"></p>
 <ol>
 <li>采用电容反馈的好处就是高频谐波得到了抑制，振荡波形接近正弦波；</li>
 <li>如果把两个谐振反馈电容数量级取大，那么分布电容的影响就很小；</li>
@@ -178,7 +178,7 @@
 <h2 id="串联型改进电容三端式"><a href="#串联型改进电容三端式" class="headerlink" title="串联型改进电容三端式"></a>串联型改进电容三端式</h2><blockquote>
 <p>Clapp</p>
 </blockquote>
-<p><img src="http://imgjry.fangyikuan.xyz/20201213/20201213-LC-6.png" alt="串联改进"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20201213-LC-6.png" alt="串联改进"></p>
 <p>$$<br>\because C_3 \ll C_1, C_3 \ll C_2<br>\\ \therefore<br>等效串联电容 C \simeq C_3<br>\\ \Rightarrow<br>\omega_o &#x3D; \frac{1}{\sqrt{LC_3}}<br>$$</p>
 <p>此时晶体管的输入输出电容和反馈电容网络对电路的谐振频率影响都非常的小。但是注意电路的接入系数：</p>
 <p>$$<br>P_{ce} &#x3D; \frac{C_3}{C_1}<br>,<br>P_{be} &#x3D; \frac{C_3}{C_2}<br>$$</p>
@@ -191,7 +191,7 @@
 <h2 id="并联型改进电容三端式"><a href="#并联型改进电容三端式" class="headerlink" title="并联型改进电容三端式"></a>并联型改进电容三端式</h2><blockquote>
 <p>Selier</p>
 </blockquote>
-<p><img src="http://imgjry.fangyikuan.xyz/20201213/20201213-LC-7.png" alt="并列改进"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20201213-LC-7.png" alt="并列改进"></p>
 <p>等效电容</p>
 <p>$$<br>C \simeq C_3 + C_4<br>$$</p>
 <p>在该电路中，调整电容（调谐振点）并不会影响接入系数，所以这个电路可以作为波段振荡器</p>

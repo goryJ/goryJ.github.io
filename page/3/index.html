@@ -190,11 +190,11 @@
 </blockquote>
 </blockquote>
 <h2 id="机翼的空气动力特性"><a href="#机翼的空气动力特性" class="headerlink" title="机翼的空气动力特性"></a>机翼的空气动力特性</h2><p>为了方便分析，一般取机翼的切面形状进行空气动力学计算，即翼型。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-1.png" alt="翼型概念"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-1.png" alt="翼型概念"></p>
 <p>下图为几种常见的翼型，在不同用途的飞行器上有着各自的优势，具体我们留到下方<strong>常见翼型特性</strong>一节讲解分析。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-2.png" alt="各种翼型"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-2.png" alt="各种翼型"></p>
 <p>笔者玩的<em><strong>冲浪者</strong></em>主机翼显然采用的是超临界型翼型设计，下图展示的为将机翼拆下后翅根处的截面。（都这么努力了😁是不是要扫描文末的二维码请咖啡呀☕）</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-3.jpg" alt="冲浪者翼型"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-3.jpg" alt="冲浪者翼型"></p>
 <p>接下来，对翼型进行理论分析，介绍各项重要参数以及升力计算方法。图中，贯穿中央的水平<strong>实</strong>直线名为<code>展弦</code>；还有一根从前缘到后缘，贯穿内切圆圆心的<strong>虚</strong>线名为<code>中弧线</code>；翼型的上包实线名为<code>上弧线</code>；翼型的下包实线名为<code>下弧线</code>；其他关键机械设计参数皆标于图上。</p> 
       <a class="article-more-link" href="/2022/02/05/airplane-Model/"
         >阅读更多...</a
@@ -258,7 +258,7 @@
 <p>要自学本文，需要先完全掌握（上一篇文章中的）微波传输线相关知识和基础的大学物理电磁学</p>
 </blockquote>
 <p>天线理论的基础是对称振子（有磁基本振子和电基本振子两种），下图是天线的原理简图。可以大概观察到，天线的大小是和信号波长相当的</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-1.png" alt="原理简图"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210807-ANT-1.png" alt="原理简图"></p>
 <p>目前人类正在使用的无线电波频率，下至Hz，上至百GHz不等。</p> 
       <a class="article-more-link" href="/2021/08/07/antenna/"
         >阅读更多...</a
@@ -318,15 +318,15 @@
   <blockquote>
 <p>前言：笔者这学期在课内学习了《微波技术》，本以为射频相关是永远不可能涉及的工作，直至前几日帮好兄弟解决了一个阻抗匹配的玄学通信案例，才意识到做硬件一定逃不开传输线的知识，以及阻抗匹配的重要性</p>
 </blockquote>
-<h2 id="匹配实战案例"><a href="#匹配实战案例" class="headerlink" title="匹配实战案例"></a>匹配实战案例</h2><p><img src="http://imgjry.fangyikuan.xyz/20210625/20210625-IM-1.jpg" alt="开路同轴线匹配"></p>
+<h2 id="匹配实战案例"><a href="#匹配实战案例" class="headerlink" title="匹配实战案例"></a>匹配实战案例</h2><p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210625-IM-1.jpg" alt="开路同轴线匹配"></p>
 <p>事情的起因是这样的，前几天我的一个好兄弟联系说有一个机械臂的STM32主控板有点问题，其他功能都正常，但是不能使用<code>SW</code>接口烧录调试只能用普通串口烧录代码。🤯“不会是假片子吧？”在片慌的2021年，这是笔者的第一感觉…</p>
 <blockquote>
 <p>“一切玄学本质上都是无知”——王贞炎（HUST-STI）</p>
 </blockquote>
 <p>拿到板子后，笔者用ST-LINK和CMSIS-DAP调试器分别试了一下，确实都识别不到芯片；看了一下Layout，板子上<code>SWCLK</code>和<code>SWD</code>没有做等长，所以怀疑是时钟对齐问题，把调试器的时钟降至最低的5kHz居然还是不行？！（建议读者记下这个常规调试方式）</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210625/20210625-IM-2.png" alt="layout"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210625-IM-2.png" alt="layout"></p>
 <p>这里不得不感谢一下华科电信院的微波考试的心理阴影，让笔者考完几天后还久久不能忘怀哈哈哈🐶我突然想到了阻抗匹配这个东西，怀疑有可能是阻抗匹配没做，实时证明也确实如此，如图中笔者使用了期末考的枝节匹配器</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210625/20210625-IM-3.png" alt="支线匹配"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210625-IM-3.png" alt="支线匹配"></p>
 <p>DETAIL：在SWCLK引脚和地焊盘之间并联了一条终端开路的同轴传输线，单枝节匹配器理论上是只对一个频点（窄带）匹配，但是由于本例中总线时钟较低（5k~4M），所以获得了宽带匹配效果。</p> 
       <a class="article-more-link" href="/2021/06/23/%E9%98%BB%E6%8A%97%E5%8C%B9%E9%85%8D%E5%92%8C%E6%9E%9D%E8%8A%82%E5%8C%B9%E9%85%8D/"
         >阅读更多...</a

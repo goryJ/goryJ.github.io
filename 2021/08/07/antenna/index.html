@@ -121,7 +121,7 @@
 <p>要自学本文，需要先完全掌握（上一篇文章中的）微波传输线相关知识和基础的大学物理电磁学</p>
 </blockquote>
 <p>天线理论的基础是对称振子（有磁基本振子和电基本振子两种），下图是天线的原理简图。可以大概观察到，天线的大小是和信号波长相当的</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-1.png" alt="原理简图"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210807-ANT-1.png" alt="原理简图"></p>
 <p>目前人类正在使用的无线电波频率，下至Hz，上至百GHz不等。</p>
 <span id="more"></span>
 
@@ -156,9 +156,9 @@
 <li>定向天线：雷达的重要部分</li>
 </ul>
 <h2 id="重要参数指标"><a href="#重要参数指标" class="headerlink" title="重要参数指标"></a>重要参数指标</h2><h3 id="方向图"><a href="#方向图" class="headerlink" title="方向图"></a>方向图</h3><p>天线的方向图表征天线的方向特征，有：振幅、功率、相位等方向图。这个玩意一般是三维的，像下面这样：</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-5.png" alt="三维方向图"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210807-ANT-5.png" alt="三维方向图"></p>
 <p>但为了方便分析，我们选用通过天线最大辐射方向上的两个互相垂直的刨面图（主平面）来描述，如下：</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-2.jpeg" alt="二维方向剖图"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210807-ANT-2.jpeg" alt="二维方向剖图"></p>
 <p>辐射区域最大强度最强的称为主瓣（主波束），其他是旁瓣。正如图中标注的，一个天线在方向特性上可引出参数：</p>
 <ul>
 <li>波瓣宽度和主瓣宽度<br>  主瓣的波瓣宽度就是主瓣宽度，如果把主瓣场强最大的位置强度归一化为1，那么场强为0.707（即半功率点）的两个点之间的宽度，称为主瓣宽度</li>
@@ -203,17 +203,17 @@
 <p>在理想情况下，天线与射频电路的阻抗完全匹配，完全没有反射功率，这时的回波损耗为无限小。但是在工程上阻抗不可能完全匹配，因此反射功率是一定存在的。最差的情况是输入功率完全被反射，此时回波损耗为0。因此对回波损耗这个技术参数，数值越低表示天线性能越好。</p>
 </blockquote>
 <p>  下图是笔者截取自Cypress公司《天线设计与射频布局指南》中推荐的MIFA天线设计方案的回波损耗曲线，在图中有一个最低损耗点就是这个天线工作的中心频率，我们要设计天线的目标也就是这个点的位置和大小；同时还可以在最低点两端选取相应的回损截止点作为带宽评价指标。</p>
-<p>  <img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-7.png" alt="回波损耗"></p>
+<p>  <img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210807-ANT-7.png" alt="回波损耗"></p>
 </li>
 </ul>
 <h3 id="极化方式"><a href="#极化方式" class="headerlink" title="极化方式"></a>极化方式</h3><p>天线的极化就是指天线辐射时形成的电场强度方向。当电场强度方向垂直于地面时，此电波就称为垂直极化波;当电场强度方向平行于地面时，此电波就称为水平极化波。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-3.jpeg" alt="极化方向"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210807-ANT-3.jpeg" alt="极化方向"></p>
 <p>双极化天线是由极化彼此正交的两根天线封装在同一天线罩中组成的。由于性能原因，两根天线采用±45度的极化方式。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-4.jpeg" alt="双极化方式"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210807-ANT-4.jpeg" alt="双极化方式"></p>
 <blockquote>
 <p>要注意，天线极化就类似光的偏振，如果两个天线极化不匹配，接收效果将会大打折扣甚至收不到信号</p>
 </blockquote>
-<h2 id="非理想天线的影响"><a href="#非理想天线的影响" class="headerlink" title="非理想天线的影响"></a>非理想天线的影响</h2><p><img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-6.jpg" alt="天线方向"></p>
+<h2 id="非理想天线的影响"><a href="#非理想天线的影响" class="headerlink" title="非理想天线的影响"></a>非理想天线的影响</h2><p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210807-ANT-6.jpg" alt="天线方向"></p>
 <p>这就是一个经典的非全向性天线带来的盲区问题，所以这就是为什么我们常常看到蜂窝网络一般是有好几个天线绕一圈组成一个电信塔。</p>
 <p>但是方向性在通信上也有一定的好处，比如使用一个功率为10W的理想无向天线可以与某点进行通信，而使用功率为1W的增益为10的天线就可以在最大辐射方向上具有同样效果。</p>
 <h2 id="天线的设计"><a href="#天线的设计" class="headerlink" title="天线的设计"></a>天线的设计</h2><p>天线的设计是一个非常困难的事情，一般很难求出解析解，通常采用的是计算机软件进行设计。</p>

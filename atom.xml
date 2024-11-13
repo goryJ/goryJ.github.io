@@ -288,7 +288,7 @@
     <link href="http://blog.goryj.com/2022/02/05/airplane-Model/"/>
     <id>http://blog.goryj.com/2022/02/05/airplane-Model/</id>
     <published>2022-02-05T10:04:16.000Z</published>
-    <updated>2024-11-09T14:48:19.935Z</updated>
+    <updated>2024-11-13T07:11:05.627Z</updated>
     
     
     <summary type="html">&lt;blockquote&gt;
@@ -298,11 +298,11 @@
 &lt;/blockquote&gt;
 &lt;/blockquote&gt;
 &lt;h2 id=&quot;机翼的空气动力特性&quot;&gt;&lt;a href=&quot;#机翼的空气动力特性&quot; class=&quot;headerlink&quot; title=&quot;机翼的空气动力特性&quot;&gt;&lt;/a&gt;机翼的空气动力特性&lt;/h2&gt;&lt;p&gt;为了方便分析，一般取机翼的切面形状进行空气动力学计算，即翼型。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-1.png&quot; alt=&quot;翼型概念&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-1.png&quot; alt=&quot;翼型概念&quot;&gt;&lt;/p&gt;
 &lt;p&gt;下图为几种常见的翼型，在不同用途的飞行器上有着各自的优势，具体我们留到下方&lt;strong&gt;常见翼型特性&lt;/strong&gt;一节讲解分析。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-2.png&quot; alt=&quot;各种翼型&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-2.png&quot; alt=&quot;各种翼型&quot;&gt;&lt;/p&gt;
 &lt;p&gt;笔者玩的&lt;em&gt;&lt;strong&gt;冲浪者&lt;/strong&gt;&lt;/em&gt;主机翼显然采用的是超临界型翼型设计，下图展示的为将机翼拆下后翅根处的截面。（都这么努力了😁是不是要扫描文末的二维码请咖啡呀☕）&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-3.jpg&quot; alt=&quot;冲浪者翼型&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-3.jpg&quot; alt=&quot;冲浪者翼型&quot;&gt;&lt;/p&gt;
 &lt;p&gt;接下来，对翼型进行理论分析，介绍各项重要参数以及升力计算方法。图中，贯穿中央的水平&lt;strong&gt;实&lt;/strong&gt;直线名为&lt;code&gt;展弦&lt;/code&gt;；还有一根从前缘到后缘，贯穿内切圆圆心的&lt;strong&gt;虚&lt;/strong&gt;线名为&lt;code&gt;中弧线&lt;/code&gt;；翼型的上包实线名为&lt;code&gt;上弧线&lt;/code&gt;；翼型的下包实线名为&lt;code&gt;下弧线&lt;/code&gt;；其他关键机械设计参数皆标于图上。&lt;/p&gt;</summary>
     
     
@@ -321,7 +321,7 @@
     <link href="http://blog.goryj.com/2021/08/07/antenna/"/>
     <id>http://blog.goryj.com/2021/08/07/antenna/</id>
     <published>2021-08-07T09:29:20.000Z</published>
-    <updated>2024-11-09T14:51:26.281Z</updated>
+    <updated>2024-11-13T07:12:47.385Z</updated>
     
     
     <summary type="html">&lt;blockquote&gt;
@@ -331,7 +331,7 @@
 &lt;p&gt;要自学本文，需要先完全掌握（上一篇文章中的）微波传输线相关知识和基础的大学物理电磁学&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;天线理论的基础是对称振子（有磁基本振子和电基本振子两种），下图是天线的原理简图。可以大概观察到，天线的大小是和信号波长相当的&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-1.png&quot; alt=&quot;原理简图&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210807-ANT-1.png&quot; alt=&quot;原理简图&quot;&gt;&lt;/p&gt;
 &lt;p&gt;目前人类正在使用的无线电波频率，下至Hz，上至百GHz不等。&lt;/p&gt;</summary>
     
     
@@ -350,21 +350,21 @@
     <link href="http://blog.goryj.com/2021/06/23/%E9%98%BB%E6%8A%97%E5%8C%B9%E9%85%8D%E5%92%8C%E6%9E%9D%E8%8A%82%E5%8C%B9%E9%85%8D/"/>
     <id>http://blog.goryj.com/2021/06/23/%E9%98%BB%E6%8A%97%E5%8C%B9%E9%85%8D%E5%92%8C%E6%9E%9D%E8%8A%82%E5%8C%B9%E9%85%8D/</id>
     <published>2021-06-23T09:03:06.000Z</published>
-    <updated>2024-11-09T14:51:00.444Z</updated>
+    <updated>2024-11-13T07:15:26.537Z</updated>
     
     
     <summary type="html">&lt;blockquote&gt;
 &lt;p&gt;前言：笔者这学期在课内学习了《微波技术》，本以为射频相关是永远不可能涉及的工作，直至前几日帮好兄弟解决了一个阻抗匹配的玄学通信案例，才意识到做硬件一定逃不开传输线的知识，以及阻抗匹配的重要性&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h2 id=&quot;匹配实战案例&quot;&gt;&lt;a href=&quot;#匹配实战案例&quot; class=&quot;headerlink&quot; title=&quot;匹配实战案例&quot;&gt;&lt;/a&gt;匹配实战案例&lt;/h2&gt;&lt;p&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/20210625/20210625-IM-1.jpg&quot; alt=&quot;开路同轴线匹配&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;匹配实战案例&quot;&gt;&lt;a href=&quot;#匹配实战案例&quot; class=&quot;headerlink&quot; title=&quot;匹配实战案例&quot;&gt;&lt;/a&gt;匹配实战案例&lt;/h2&gt;&lt;p&gt;&lt;img src=&quot;https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210625-IM-1.jpg&quot; alt=&quot;开路同轴线匹配&quot;&gt;&lt;/p&gt;
 &lt;p&gt;事情的起因是这样的，前几天我的一个好兄弟联系说有一个机械臂的STM32主控板有点问题，其他功能都正常，但是不能使用&lt;code&gt;SW&lt;/code&gt;接口烧录调试只能用普通串口烧录代码。🤯“不会是假片子吧？”在片慌的2021年，这是笔者的第一感觉…&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;“一切玄学本质上都是无知”——王贞炎（HUST-STI）&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;拿到板子后，笔者用ST-LINK和CMSIS-DAP调试器分别试了一下，确实都识别不到芯片；看了一下Layout，板子上&lt;code&gt;SWCLK&lt;/code&gt;和&lt;code&gt;SWD&lt;/code&gt;没有做等长，所以怀疑是时钟对齐问题，把调试器的时钟降至最低的5kHz居然还是不行？！（建议读者记下这个常规调试方式）&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/20210625/20210625-IM-2.png&quot; alt=&quot;layout&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210625-IM-2.png&quot; alt=&quot;layout&quot;&gt;&lt;/p&gt;
 &lt;p&gt;这里不得不感谢一下华科电信院的微波考试的心理阴影，让笔者考完几天后还久久不能忘怀哈哈哈🐶我突然想到了阻抗匹配这个东西，怀疑有可能是阻抗匹配没做，实时证明也确实如此，如图中笔者使用了期末考的枝节匹配器&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/20210625/20210625-IM-3.png&quot; alt=&quot;支线匹配&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210625-IM-3.png&quot; alt=&quot;支线匹配&quot;&gt;&lt;/p&gt;
 &lt;p&gt;DETAIL：在SWCLK引脚和地焊盘之间并联了一条终端开路的同轴传输线，单枝节匹配器理论上是只对一个频点（窄带）匹配，但是由于本例中总线时钟较低（5k~4M），所以获得了宽带匹配效果。&lt;/p&gt;</summary>
     
     
@@ -416,7 +416,7 @@
     <link href="http://blog.goryj.com/2020/12/13/LC-oscillator/"/>
     <id>http://blog.goryj.com/2020/12/13/LC-oscillator/</id>
     <published>2020-12-13T05:23:57.000Z</published>
-    <updated>2024-11-09T14:48:16.050Z</updated>
+    <updated>2024-11-13T07:12:14.935Z</updated>
     
     
     <summary type="html">&lt;blockquote&gt;
@@ -439,7 +439,7 @@
 &lt;li&gt;调发电路&lt;/li&gt;
 &lt;li&gt;调射电路&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src=&quot;http://imgjry.fangyikuan.xyz/20201213/20201213-LC-1.png&quot; alt=&quot;互感耦合&quot;&gt;&lt;/p&gt;</summary>
+&lt;p&gt;&lt;img src=&quot;https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20201213-LC-1.png&quot; alt=&quot;互感耦合&quot;&gt;&lt;/p&gt;</summary>
     
     
     

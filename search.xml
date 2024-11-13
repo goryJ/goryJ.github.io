@@ -23,7 +23,7 @@
 <li>调发电路</li>
 <li>调射电路</li>
 </ul>
-<p><img src="http://imgjry.fangyikuan.xyz/20201213/20201213-LC-1.png" alt="互感耦合"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20201213-LC-1.png" alt="互感耦合"></p>
 <span id="more"></span>
 
 <p>耦合时的同名端决定了正反馈（相位）是否成立，而互感量M决定了反馈量的大小。由选频网络易得</p>
@@ -33,7 +33,7 @@
 <blockquote>
 <p>由于变压器在绕制的时候，线圈匝间存在分布电容，且不好控制量值，所以不适用于高频场合</p>
 </blockquote>
-<h2 id="三端式反馈振荡器"><a href="#三端式反馈振荡器" class="headerlink" title="三端式反馈振荡器"></a>三端式反馈振荡器</h2><p><img src="http://imgjry.fangyikuan.xyz/20201213/20201213-LC-5.png" alt="三端式原理"></p>
+<h2 id="三端式反馈振荡器"><a href="#三端式反馈振荡器" class="headerlink" title="三端式反馈振荡器"></a>三端式反馈振荡器</h2><p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20201213-LC-5.png" alt="三端式原理"></p>
 <p>忽略三极管的IO阻抗，依据谐振理论可知电路要振荡需要满足条件</p>
 <p>$$<br>x_{be}+ x_{ce}+ x_{cb} &#x3D;0<br>$$</p>
 <p>并且由上图可知</p>
@@ -45,20 +45,20 @@
 <h3 id="电感反馈三端式振荡器"><a href="#电感反馈三端式振荡器" class="headerlink" title="电感反馈三端式振荡器"></a>电感反馈三端式振荡器</h3><blockquote>
 <p>Hartley</p>
 </blockquote>
-<p><img src="http://imgjry.fangyikuan.xyz/20201213/20201213-LC-2.png" alt="电感反馈"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20201213-LC-2.png" alt="电感反馈"></p>
 <p>上图中左图为完整振荡电路，右图进行了交流等效，可见满足上面讨论的三端谐振条件。重要元件说明：</p>
 <p>$$<br>反馈电容兼隔直电容C_b<br>\\<br>高频旁路电容C_e<br>\\<br>放大器工作点偏置电阻R_{b1}和R_{b2}<br>$$</p>
 <p>电路的起振条件为</p>
 <p>$$<br>h_{fe} \gt \frac{h_{ie}}{FR_P’} &#x3D; \frac{h_{ie}}{R_P’} \cdot \frac{L_1 + M}{L_2 + M} \gt \frac{h_{ie}}{h_{fe}R_p’}<br>\\<br>负载回路谐振电阻R_p’<br>\\<br>反馈系数F<br>$$</p>
 <p>作如下所示的等效谐振回路图可知，若F大，则接入系数增大，晶体管输入阻抗折合到谐振等效回路中的阻抗减少，使得Q值减少，也就是谐振电阻减少。那么从起振条件可知，要求的电流增益需求变大了，使得电路难以起振</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20201213/20201213-LC-3.png" alt="电感反馈等效"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20201213-LC-3.png" alt="电感反馈等效"></p>
 <blockquote>
 <p>因为采用的是电感作反馈，所以高频谐波的反馈较强，波形失真大</p>
 </blockquote>
 <h3 id="电容反馈三端式振荡器"><a href="#电容反馈三端式振荡器" class="headerlink" title="电容反馈三端式振荡器"></a>电容反馈三端式振荡器</h3><blockquote>
 <p>Coplitts</p>
 </blockquote>
-<p><img src="http://imgjry.fangyikuan.xyz/20201213/20201213-LC-4.png" alt="电容反馈"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20201213-LC-4.png" alt="电容反馈"></p>
 <ol>
 <li>采用电容反馈的好处就是高频谐波得到了抑制，振荡波形接近正弦波；</li>
 <li>如果把两个谐振反馈电容数量级取大，那么分布电容的影响就很小；</li>
@@ -67,7 +67,7 @@
 <h2 id="串联型改进电容三端式"><a href="#串联型改进电容三端式" class="headerlink" title="串联型改进电容三端式"></a>串联型改进电容三端式</h2><blockquote>
 <p>Clapp</p>
 </blockquote>
-<p><img src="http://imgjry.fangyikuan.xyz/20201213/20201213-LC-6.png" alt="串联改进"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20201213-LC-6.png" alt="串联改进"></p>
 <p>$$<br>\because C_3 \ll C_1, C_3 \ll C_2<br>\\ \therefore<br>等效串联电容 C \simeq C_3<br>\\ \Rightarrow<br>\omega_o &#x3D; \frac{1}{\sqrt{LC_3}}<br>$$</p>
 <p>此时晶体管的输入输出电容和反馈电容网络对电路的谐振频率影响都非常的小。但是注意电路的接入系数：</p>
 <p>$$<br>P_{ce} &#x3D; \frac{C_3}{C_1}<br>,<br>P_{be} &#x3D; \frac{C_3}{C_2}<br>$$</p>
@@ -80,7 +80,7 @@
 <h2 id="并联型改进电容三端式"><a href="#并联型改进电容三端式" class="headerlink" title="并联型改进电容三端式"></a>并联型改进电容三端式</h2><blockquote>
 <p>Selier</p>
 </blockquote>
-<p><img src="http://imgjry.fangyikuan.xyz/20201213/20201213-LC-7.png" alt="并列改进"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20201213-LC-7.png" alt="并列改进"></p>
 <p>等效电容</p>
 <p>$$<br>C \simeq C_3 + C_4<br>$$</p>
 <p>在该电路中，调整电容（调谐振点）并不会影响接入系数，所以这个电路可以作为波段振荡器</p>
@@ -160,15 +160,15 @@
 </blockquote>
 </blockquote>
 <h2 id="机翼的空气动力特性"><a href="#机翼的空气动力特性" class="headerlink" title="机翼的空气动力特性"></a>机翼的空气动力特性</h2><p>为了方便分析，一般取机翼的切面形状进行空气动力学计算，即翼型。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-1.png" alt="翼型概念"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-1.png" alt="翼型概念"></p>
 <p>下图为几种常见的翼型，在不同用途的飞行器上有着各自的优势，具体我们留到下方<strong>常见翼型特性</strong>一节讲解分析。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-2.png" alt="各种翼型"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-2.png" alt="各种翼型"></p>
 <p>笔者玩的<em><strong>冲浪者</strong></em>主机翼显然采用的是超临界型翼型设计，下图展示的为将机翼拆下后翅根处的截面。（都这么努力了😁是不是要扫描文末的二维码请咖啡呀☕）</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-3.jpg" alt="冲浪者翼型"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-3.jpg" alt="冲浪者翼型"></p>
 <p>接下来，对翼型进行理论分析，介绍各项重要参数以及升力计算方法。图中，贯穿中央的水平<strong>实</strong>直线名为<code>展弦</code>；还有一根从前缘到后缘，贯穿内切圆圆心的<strong>虚</strong>线名为<code>中弧线</code>；翼型的上包实线名为<code>上弧线</code>；翼型的下包实线名为<code>下弧线</code>；其他关键机械设计参数皆标于图上。</p>
 <span id="more"></span>
 
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-4.png" alt="机翼参数"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-4.png" alt="机翼参数"></p>
 <p>设计参数可引出以下参数：</p>
 <ul>
 <li>相对弯度：表示翼型的不对称程度，现代飞机的相对弯度为<code>0~2%</code><br>  $$<br>  \overline{f} &#x3D; \frac{f_{\max}}{c_w} \times 100%<br>  $$</li>
@@ -177,13 +177,13 @@
 <li>最大厚度位置：该参数同采用相对翼弦的表示法，现代飞机参数范围一般<code>30~50%</code>，亚声速<code>25~30</code>，超声速<code>40~50%</code><br>  $$<br>  \overline{x_c} &#x3D; \frac{x_c}{c_w} \times 100 %<br>  $$</li>
 </ul>
 <p>还有一个重要的实时参数名为<em><strong>迎角</strong></em>，如下图所示为吹来的气流与机翼的夹角，该参数有正负，一般取翼弦方向为<code>0</code>。正如接下来的计算过程展现的，该参数将极大地影响飞机的升力，并且飞行时大多数工作于正迎角状态。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-5.png" alt="迎角"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-5.png" alt="迎角"></p>
 <p>我们将使用到最简单的<a href="https://baike.baidu.com/item/%E4%BC%AF%E5%8A%AA%E5%88%A9%E5%8E%9F%E7%90%86">伯努利原理</a>：</p>
 <p>$$<br>p_1+\frac{1}{2} \rho v_1^2 + \rho gh_1 &#x3D; p_2+\frac{1}{2} \rho v_2^2 + \rho gh_2<br>$$</p>
 <blockquote>
 <p>NOTE⚠：伯努利方程只能用在粘度忽略、不可压缩的理想流体，所以基于此的分析只能用在低速飞行，超声速飞行后面专门讲解</p>
 </blockquote>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-6.png" alt="升力原理"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-6.png" alt="升力原理"></p>
 <p>由于机翼一般较薄，所以如上图所示的流管，在远处来流与翼上切面有关系：<br>$$<br>p_\infty + \frac{1}{2} \rho_\infty v^2_\infty &#x3D; p +\frac{1}{2} \rho v^2<br>$$</p>
 <p>整理：</p>
 <p>$$<br>p-p_\infty &#x3D; \frac 12 \rho_\infty v^2_\infty - \frac{1}{2} \rho v^2<br>\\<br>\frac{p-p_\infty}{\frac 12 \rho_\infty v^2_\infty} &#x3D; 1-\frac{\rho v^2}{\rho_\infty v^2_\infty}<br>$$</p>
@@ -207,7 +207,7 @@
 </ol>
 </blockquote>
 <h3 id="机翼平面形状"><a href="#机翼平面形状" class="headerlink" title="机翼平面形状"></a>机翼平面形状</h3><p>上面算的升力公式要作二维积分，对下图所示的各种奇怪形状的机翼来说简直是计算灾难。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-7.png" alt="机翼平面形状"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-7.png" alt="机翼平面形状"></p>
 <p>在简化计算之前，先介绍几个用来定义机翼平面形状的参数：</p>
 <ul>
 <li>机翼面积$S$：机翼垂直投影面积大小</li>
@@ -218,7 +218,7 @@
 <li>后掠角$\chi$：这个参数常见于讨论一些外型炫酷的<a href="https://baike.baidu.com/item/%E5%90%8E%E6%8E%A0%E7%BF%BC/7960782">后掠翼现代飞机</a>，具体吧又有很多种后掠角，比如下图中标有的前缘后掠角$\chi_0$，1&#x2F;4弦线后掠角$\chi_{0.25}$，后缘后掠角$\chi_1$</li>
 <li><strong>平均空气动力弦</strong>$c_A$：对后掠翼这种从翼根到翼尖一直在变化的形状计算升力，简直是灾难，所以人们定义了该参数，假设存在一个等效的矩形机翼（等效要求：面积相同、俯仰力矩相同、气动力合力相同）。这样呢，一次设计，多次使用，不然风洞一吹多贵啊，超算一开更贵</li>
 </ul>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-8.png" alt="机翼形状参数"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-8.png" alt="机翼形状参数"></p>
 <h3 id="升力系数"><a href="#升力系数" class="headerlink" title="升力系数"></a>升力系数</h3><p>有了平均空气动力弦，原本升力公式就可以简化为：</p>
 <p>$$<br>F &#x3D; \frac12 \rho v^2_\infty c_A \int_0^{c_w} ( \overline{p} _{下} - \overline{p} _{上}) \cdot dx<br>\\<br>\overset{\overline{x}&#x3D;\frac{x}{c_w}}{&#x3D;}<br>\frac12 \rho v^2_\infty c_A c_w \int_0^{1} ( \overline{p} _{下} - \overline{p} _{上}) \cdot d\overline{x}<br>$$</p>
 <p>所以我们提出升力系数：</p>
@@ -226,7 +226,7 @@
 <p>再用等效机翼面积替换$c_A c_w$，得到：</p>
 <p>$$<br>F &#x3D; C_L \cdot \frac{1}{2} \rho v^2_\infty S<br>$$</p>
 <p>这样嘞，就可以为移植机翼提供一个参考了。比如同一款机翼，缩放后升力系数是一样的。并且，我们可以测定绘制出下图所示的升力系数随迎角变化的规律，$\delta$是襟翼角度。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-9.png" alt="升力系数曲线"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-9.png" alt="升力系数曲线"></p>
 <p>这里注意几个一般性原则：</p>
 <ul>
 <li>迎角不大时，升力系数与迎角成线性关系<br>  $$<br>  C_L &#x3D; k(\alpha - \alpha_0)<br>  $$</li>
@@ -246,15 +246,15 @@
 </ol>
 <p>所以，失速迎角就是临界迎角。</p>
 <h3 id="翼尖涡流"><a href="#翼尖涡流" class="headerlink" title="翼尖涡流"></a>翼尖涡流</h3><p>如下图所示，机翼正常工作时，下表面的压力大于上表面的压力，所以气流会绕过翼尖流到上表面，形成了翼尖涡流。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-10.png" alt="涡流产生原理"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-10.png" alt="涡流产生原理"></p>
 <p>下图所示，是大型客机降落时产生的涡流。所以机场的飞机起飞和降落时，机与机之间需要等待一段时间，直至上一架产生的涡流衰减至不影响安全飞行。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-11.png" alt="大型客机涡流"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-11.png" alt="大型客机涡流"></p>
 <p>同样的，冲浪者的机翼设计也是充分考虑到了翼尖涡流，做成两边翘起的形状，这样可以较好地减小涡流作用带来的诱导阻力。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-12.jpg" alt="冲浪者翼尾"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-12.jpg" alt="冲浪者翼尾"></p>
 <h3 id="副翼与襟翼"><a href="#副翼与襟翼" class="headerlink" title="副翼与襟翼"></a>副翼与襟翼</h3><p>冲浪者的主机翼控制较为简单，只有靠近翅膀端点处的副翼（提供横滚控制）。而复杂的现代飞行器，如下图一般由副翼、襟翼、扰流板等构成。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-13.png" alt="机翼构成"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-13.png" alt="机翼构成"></p>
 <p>为了提供较大的横滚力矩（$\vec T &#x3D; \vec F\times \vec l$），所以副翼一般设置在靠近主机翼外侧；而襟翼（下图所示各种常见结构）是为了在降落或起飞时提供大的升力，而又不产生影响稳定性的力矩，所以一般靠近内部；扰流板从结构上来看，方向与襟翼相反，所以在降落的时候打开，可以抵消大量升力，同时又提供了大量阻力，使得减速更快。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-14.png" alt="各种襟翼"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-14.png" alt="各种襟翼"></p>
 <h3 id="常见翼型特性"><a href="#常见翼型特性" class="headerlink" title="常见翼型特性"></a>常见翼型特性</h3><blockquote>
 <p>推荐一个软件：<code>profili</code>，这里面有很多大组织开源的翼型参考设计。</p>
 </blockquote>
@@ -264,17 +264,17 @@
 <li>方向舵：位于垂直尾翼（对称翼型）上，控制飞行器的左右偏转</li>
 <li>升降舵：位于水平尾翼（不一定是对称翼型）上，控制飞行器抬头和低头</li>
 </ol>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-20.jpeg" alt="机尾结构"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-20.jpeg" alt="机尾结构"></p>
 <p>如下图所示，当升降舵<strong>向下</strong>偏转时，产生向上的升力，此时相对飞机的重心来说提供的力矩使飞机<strong>低头</strong>；当升降舵<strong>向上</strong>时，同理受力，飞机<strong>抬头</strong>。这里注意，左右升降舵是同向运动的（如果左右平尾升力不同，会给飞机一个横滚力矩，并且是多少会出现的）。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-21.gif" alt="升降舵"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-21.gif" alt="升降舵"></p>
 <p>下图所示是方向舵工作原理，舵面<strong>左偏</strong>（从机身后向前看）则垂尾压力向右，到飞机的重心产生的力矩使飞机整体向<strong>左转</strong>；同理，舵面<strong>右偏</strong>，飞机<strong>右转</strong>。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-22.gif" alt="方向舵"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-22.gif" alt="方向舵"></p>
 <p>横滚舵，就是主机翼的副翼，之前已经说过原理不再赘述。需要值得一提的是，根据网友经验以及笔者亲测，对于冲浪者这类飞行器来说，打方向舵效果在低速的时候转向效果不明显，如果需要大幅度地回旋，建议采用：</p>
 <ol>
 <li>往预偏转方向横滚机身，使原本朝上的升力倾斜（可分解为水平的向心力和垂直的部分升力）</li>
 <li>理论上此时升力必定比原本小，所以操作升降舵抬高机头，获得更多的升力；或者适当加大油门</li>
 </ol>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-23.gif" alt="横滚舵"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20220205-airplane-23.gif" alt="横滚舵"></p>
 <h2 id="高速飞行特性"><a href="#高速飞行特性" class="headerlink" title="高速飞行特性"></a>高速飞行特性</h2><p>为了不误人子弟，研究透了再补充这一部分。并且玩航模一般也玩不到声速吧</p>
 <h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
 <li>李国辉. 飞行原理与仿真建模.北京理工大学出版社.</li>
@@ -300,7 +300,7 @@
 <p>要自学本文，需要先完全掌握（上一篇文章中的）微波传输线相关知识和基础的大学物理电磁学</p>
 </blockquote>
 <p>天线理论的基础是对称振子（有磁基本振子和电基本振子两种），下图是天线的原理简图。可以大概观察到，天线的大小是和信号波长相当的</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-1.png" alt="原理简图"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210807-ANT-1.png" alt="原理简图"></p>
 <p>目前人类正在使用的无线电波频率，下至Hz，上至百GHz不等。</p>
 <span id="more"></span>
 
@@ -335,9 +335,9 @@
 <li>定向天线：雷达的重要部分</li>
 </ul>
 <h2 id="重要参数指标"><a href="#重要参数指标" class="headerlink" title="重要参数指标"></a>重要参数指标</h2><h3 id="方向图"><a href="#方向图" class="headerlink" title="方向图"></a>方向图</h3><p>天线的方向图表征天线的方向特征，有：振幅、功率、相位等方向图。这个玩意一般是三维的，像下面这样：</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-5.png" alt="三维方向图"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210807-ANT-5.png" alt="三维方向图"></p>
 <p>但为了方便分析，我们选用通过天线最大辐射方向上的两个互相垂直的刨面图（主平面）来描述，如下：</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-2.jpeg" alt="二维方向剖图"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210807-ANT-2.jpeg" alt="二维方向剖图"></p>
 <p>辐射区域最大强度最强的称为主瓣（主波束），其他是旁瓣。正如图中标注的，一个天线在方向特性上可引出参数：</p>
 <ul>
 <li>波瓣宽度和主瓣宽度<br>  主瓣的波瓣宽度就是主瓣宽度，如果把主瓣场强最大的位置强度归一化为1，那么场强为0.707（即半功率点）的两个点之间的宽度，称为主瓣宽度</li>
@@ -382,17 +382,17 @@
 <p>在理想情况下，天线与射频电路的阻抗完全匹配，完全没有反射功率，这时的回波损耗为无限小。但是在工程上阻抗不可能完全匹配，因此反射功率是一定存在的。最差的情况是输入功率完全被反射，此时回波损耗为0。因此对回波损耗这个技术参数，数值越低表示天线性能越好。</p>
 </blockquote>
 <p>  下图是笔者截取自Cypress公司《天线设计与射频布局指南》中推荐的MIFA天线设计方案的回波损耗曲线，在图中有一个最低损耗点就是这个天线工作的中心频率，我们要设计天线的目标也就是这个点的位置和大小；同时还可以在最低点两端选取相应的回损截止点作为带宽评价指标。</p>
-<p>  <img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-7.png" alt="回波损耗"></p>
+<p>  <img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210807-ANT-7.png" alt="回波损耗"></p>
 </li>
 </ul>
 <h3 id="极化方式"><a href="#极化方式" class="headerlink" title="极化方式"></a>极化方式</h3><p>天线的极化就是指天线辐射时形成的电场强度方向。当电场强度方向垂直于地面时，此电波就称为垂直极化波;当电场强度方向平行于地面时，此电波就称为水平极化波。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-3.jpeg" alt="极化方向"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210807-ANT-3.jpeg" alt="极化方向"></p>
 <p>双极化天线是由极化彼此正交的两根天线封装在同一天线罩中组成的。由于性能原因，两根天线采用±45度的极化方式。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-4.jpeg" alt="双极化方式"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210807-ANT-4.jpeg" alt="双极化方式"></p>
 <blockquote>
 <p>要注意，天线极化就类似光的偏振，如果两个天线极化不匹配，接收效果将会大打折扣甚至收不到信号</p>
 </blockquote>
-<h2 id="非理想天线的影响"><a href="#非理想天线的影响" class="headerlink" title="非理想天线的影响"></a>非理想天线的影响</h2><p><img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-6.jpg" alt="天线方向"></p>
+<h2 id="非理想天线的影响"><a href="#非理想天线的影响" class="headerlink" title="非理想天线的影响"></a>非理想天线的影响</h2><p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210807-ANT-6.jpg" alt="天线方向"></p>
 <p>这就是一个经典的非全向性天线带来的盲区问题，所以这就是为什么我们常常看到蜂窝网络一般是有好几个天线绕一圈组成一个电信塔。</p>
 <p>但是方向性在通信上也有一定的好处，比如使用一个功率为10W的理想无向天线可以与某点进行通信，而使用功率为1W的增益为10的天线就可以在最大辐射方向上具有同样效果。</p>
 <h2 id="天线的设计"><a href="#天线的设计" class="headerlink" title="天线的设计"></a>天线的设计</h2><p>天线的设计是一个非常困难的事情，一般很难求出解析解，通常采用的是计算机软件进行设计。</p>
@@ -1297,15 +1297,15 @@
     <content><![CDATA[<blockquote>
 <p>前言：笔者这学期在课内学习了《微波技术》，本以为射频相关是永远不可能涉及的工作，直至前几日帮好兄弟解决了一个阻抗匹配的玄学通信案例，才意识到做硬件一定逃不开传输线的知识，以及阻抗匹配的重要性</p>
 </blockquote>
-<h2 id="匹配实战案例"><a href="#匹配实战案例" class="headerlink" title="匹配实战案例"></a>匹配实战案例</h2><p><img src="http://imgjry.fangyikuan.xyz/20210625/20210625-IM-1.jpg" alt="开路同轴线匹配"></p>
+<h2 id="匹配实战案例"><a href="#匹配实战案例" class="headerlink" title="匹配实战案例"></a>匹配实战案例</h2><p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210625-IM-1.jpg" alt="开路同轴线匹配"></p>
 <p>事情的起因是这样的，前几天我的一个好兄弟联系说有一个机械臂的STM32主控板有点问题，其他功能都正常，但是不能使用<code>SW</code>接口烧录调试只能用普通串口烧录代码。🤯“不会是假片子吧？”在片慌的2021年，这是笔者的第一感觉…</p>
 <blockquote>
 <p>“一切玄学本质上都是无知”——王贞炎（HUST-STI）</p>
 </blockquote>
 <p>拿到板子后，笔者用ST-LINK和CMSIS-DAP调试器分别试了一下，确实都识别不到芯片；看了一下Layout，板子上<code>SWCLK</code>和<code>SWD</code>没有做等长，所以怀疑是时钟对齐问题，把调试器的时钟降至最低的5kHz居然还是不行？！（建议读者记下这个常规调试方式）</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210625/20210625-IM-2.png" alt="layout"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210625-IM-2.png" alt="layout"></p>
 <p>这里不得不感谢一下华科电信院的微波考试的心理阴影，让笔者考完几天后还久久不能忘怀哈哈哈🐶我突然想到了阻抗匹配这个东西，怀疑有可能是阻抗匹配没做，实时证明也确实如此，如图中笔者使用了期末考的枝节匹配器</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210625/20210625-IM-3.png" alt="支线匹配"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210625-IM-3.png" alt="支线匹配"></p>
 <p>DETAIL：在SWCLK引脚和地焊盘之间并联了一条终端开路的同轴传输线，单枝节匹配器理论上是只对一个频点（窄带）匹配，但是由于本例中总线时钟较低（5k~4M），所以获得了宽带匹配效果。</p>
 <span id="more"></span>
 
@@ -1316,9 +1316,9 @@
 <li>枝节匹配器</li>
 </ol>
 <p>并且在文末将会给出重要公式汇总，如果读者们不喜欢推导可以直接快进</p>
-<h2 id="真正的传输线"><a href="#真正的传输线" class="headerlink" title="真正的传输线"></a>真正的传输线</h2><h3 id="传输线方程及解"><a href="#传输线方程及解" class="headerlink" title="传输线方程及解"></a>传输线方程及解</h3><p><img src="http://imgjry.fangyikuan.xyz/20210625/20210625-IM-4.png" alt="普通传输线"></p>
+<h2 id="真正的传输线"><a href="#真正的传输线" class="headerlink" title="真正的传输线"></a>真正的传输线</h2><h3 id="传输线方程及解"><a href="#传输线方程及解" class="headerlink" title="传输线方程及解"></a>传输线方程及解</h3><p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210625-IM-4.png" alt="普通传输线"></p>
 <p>上图是你以为的传输线，Right？但实际上的传输线是由无数段如下结构所示的分布参数微元电路组成的，但是平时我们电路频率低长度短所以不考虑分布参数也可以正常使用。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210625/20210625-IM-5.jpg" alt="分布参数电路"></p>
+<p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210625-IM-5.jpg" alt="分布参数电路"></p>
 <blockquote>
 <p>当信号的波长可以和电路尺寸相比拟时就要使用分布参数电路，所以这个知识在电网和高频中使用最多。举例：我们一般100k数量级频率信号，电磁波长在3000m数量级，比我们常规电路板（再大大不过10m）大很多，可以不考虑；但是1G频率的电路，电磁波长在0.3m数量级，这时候就必须要使用分布参数电路了</p>
 </blockquote>
@@ -1429,7 +1429,7 @@
 <p>所以，如果我们在负载和传输线之间加入一段匹配线长度四分之波长特征阻抗为：</p>
 <p>$$<br>Z &#x3D; \sqrt{Z_0Z_L}<br>$$</p>
 <p>则即可使得整个系统获得阻抗匹配。</p>
-<h2 id="枝节匹配器"><a href="#枝节匹配器" class="headerlink" title="枝节匹配器"></a>枝节匹配器</h2><p><img src="http://imgjry.fangyikuan.xyz/20210625/20210625-IM-6.png" alt="枝节匹配"></p>
+<h2 id="枝节匹配器"><a href="#枝节匹配器" class="headerlink" title="枝节匹配器"></a>枝节匹配器</h2><p><img src="https://blog-img-goryj.oss-rg-china-mainland.aliyuncs.com/blogpost/20210625-IM-6.png" alt="枝节匹配"></p>
 <p>枝节匹配器的结构如上图所示，就是在传输线上的某个位置并联一段终端开路（短路也行）的传输线，来调节系统匹配。</p>
 <blockquote>
 <p>接下来的分析是笔者的个人推导结果，后续有空再写写教科书上的“史密斯”圆图法</p>
